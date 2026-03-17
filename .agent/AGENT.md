@@ -107,13 +107,23 @@
 Every agent adding or editing a `.md` tutorial MUST follow:
 
 1. **Problem First — Why before How.** Start with the wall encountered, the error, the confusion. Never cold command lists.
-2. **Mandatory ASCII/Unicode illustrations.** Boxed rationale, visual separators between sections, structural diagrams.
+2. **Mandatory ASCII/Unicode graphical illustrations.** Every tutorial MUST include at minimum:
+   - An architecture diagram (boxes, arrows, tree) showing how components relate
+   - A visual separator or flow diagram between major sections
+   - Boxed rationale or inline ASCII callouts for key concepts
+   - Use `│`, `├──`, `└──`, `↓`, `→`, `←`, `↑`, `┌─`, `─┐` freely. Make structure visible.
 3. **Meaningful emojis** in section headers and callouts — signal, not noise.
-4. **Real examples only:** use `kpihx-labs`, `kpihx-ubuntu`, `ivann`, `tail2527bd.ts.net` — not generic placeholders.
+4. **Real examples only:** use `kpihx-labs`, `kpihx-ubuntu`, `ivann`, `tail2527bd.ts.net` — not generic placeholders. **But NEVER include sensitive info:** no real IPs, no system-specific paths like `/dev/shm`, no tokens, no personal identifiers beyond the agreed alias `KpihX`.
 5. **Systematic sections:** 🧩 Context & Problem → 🏗️ Architecture & Concepts → 🔧 Setup → 🐛 Debugging → ✅ Verification.
-6. **Update `_sidebar.md`** after every new tutorial created.
-7. **Update `CHANGELOG.md`** after every significant addition.
-8. **No build step.** Pure Markdown + Docsify. No Node, no bundler.
+6. **After every new tutorial — mandatory post-tutorial checklist (in order):**
+   1. Update `_sidebar.md` — add entry under correct category
+   2. Update `README.md` — add row to the Tutorials table
+   3. Update `CHANGELOG.md` — add entry under current version
+   4. Update `TODO.md` — mark done if planned, remove from In Progress
+   5. `git add <new-file> _sidebar.md README.md CHANGELOG.md TODO.md`
+   6. `git commit -m "docs: add <tutorial-name> tutorial"`
+   7. `git push github HEAD && git push gitlab HEAD`
+7. **No build step.** Pure Markdown + Docsify. No Node, no bundler.
 
 ### Structure
 

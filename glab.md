@@ -1,6 +1,6 @@
-# 🦊 GitLab CLI (`glab`) — Ubuntu 24.04 Field Guide
+# 🦊 GitLab CLI (`glab`) — Ubuntu 25.10 Field Guide
 
-> **Machine:** KpihX-Ubuntu (Ubuntu 24.04 LTS)
+> **Machine:** KpihX-Ubuntu (Ubuntu 25.10)
 > **Lived on:** 2026-03 · **Status:** Daily driver
 
 ---

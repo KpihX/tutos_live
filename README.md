@@ -1,6 +1,6 @@
-# 🐧 KpihX Ubuntu — Field Notes & Tutorials
+# 🐧 KpihX Ubuntu — Live Tutorials
 
-> **Ubuntu-focused knowledge base.** Real problems, real fixes, documented as they happen on KpihX-Ubuntu (Ubuntu 24.04 LTS).
+> **Ubuntu-focused knowledge base.** Real problems, real fixes, documented as they happen on KpihX-Ubuntu (Ubuntu 25.10).
 
 No theory, no made-up examples. Everything here was lived on my machine and documented after the fact.
 
@@ -19,8 +19,8 @@ No theory, no made-up examples. Everything here was lived on my machine and docu
 
 ## 🧰 Reference Environment
 
-- **Machine:** KpihX-Ubuntu — Ubuntu 24.04 LTS
+- **Machine:** KpihX-Ubuntu — Ubuntu 25.10
 - **Shell:** Zsh + `.kshrc` (universal hub for secrets & aliases)
-- **Secrets:** Bitwarden Desktop + `bw-env` (RAM-injected secrets via `/dev/shm`)
-- **Network:** Tailscale mesh — homelab node `kpihx-labs`, Tailscale IP `100.123.81.21`
-- **Author:** KAMDEM POUOKAM Ivann Harold (`KpihX` / `KπX`) — École Polytechnique X24
+- **Secrets:** Bitwarden Desktop + `bw-env` (RAM-injected secrets)
+- **Network:** Tailscale mesh — homelab node `kpihx-labs`
+- **Author:** KAMDEM Ivann (`KpihX` / `KπX`) — École Polytechnique X24

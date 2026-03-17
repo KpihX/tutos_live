@@ -1,6 +1,6 @@
-# 🔒 Tailscale on Ubuntu 24.04
+# 🔒 Tailscale on Ubuntu 25.10
 
-> **Machine:** KpihX-Ubuntu (Ubuntu 24.04 LTS) · **Node:** `kpihx-labs` (homelab server)
+> **Machine:** KpihX-Ubuntu (Ubuntu 25.10) · **Node:** `kpihx-labs` (homelab server)
 > **Lived on:** 2026-03 · **Status:** Production-stable
 
 ---
@@ -13,8 +13,8 @@ Two classes of problems came up in practice:
 
 ```
 Problem ①  MagicDNS intermittently broken
-           → `ssh kpihx-labs` resolves to 129.104.201.11 (wrong IP — X network catch-all)
-             instead of the Tailscale IP 100.123.81.21
+           → `ssh kpihx-labs` resolves to wrong IP (network catch-all from DHCP)
+             instead of the expected Tailscale IP
 
 Problem ②  SSH auth requires Bitwarden Desktop popup approval
            → Need SSH agent wired to Bitwarden before git push / SSH
@@ -78,7 +78,7 @@ tailscale ip -4
 
 Expected:
 ```
-kpihx-labs  100.123.81.21  linux   active; ...
+kpihx-labs  100.x.x.x  linux   active; ...
 ```
 
 ---
@@ -197,8 +197,8 @@ ssh-add -l
 ```bash
 # Check what IP kpihx-labs resolves to
 resolvectl query kpihx-labs
-# Expected: 100.123.81.21
-# Wrong: 129.104.201.11 (X catch-all)
+# Expected: your Tailscale IP (100.x.x.x range)
+# Wrong: any other IP — means a foreign DNS resolver answered first
 
 # Check effective DNS config
 resolvectl status
@@ -229,7 +229,7 @@ ssh -T git@github.com
 tailscale status
 
 # Ping via Tailscale IP directly (bypasses DNS)
-ping 100.123.81.21
+ping $(tailscale ip -4 kpihx-labs 2>/dev/null || echo "100.x.x.x")
 
 # Check tailscale interface
 ip addr show tailscale0
@@ -245,7 +245,7 @@ ssh kpihx-labs "hostname && ip addr show tailscale0 | grep inet"
 
 # Expected:
 # kpihx-labs
-# inet 100.123.81.21/32 scope global tailscale0
+# inet 100.x.x.x/32 scope global tailscale0
 ```
 
 **Persistence test** — after reconnecting to X WiFi:
@@ -253,7 +253,7 @@ ssh kpihx-labs "hostname && ip addr show tailscale0 | grep inet"
 ```bash
 # Reconnect WiFi, then:
 resolvectl query kpihx-labs
-# Must still return 100.123.81.21 — not 129.104.201.11
+# Must still return your Tailscale IP (100.x.x.x) — not a foreign resolver's answer
 ```
 
 ---

@@ -1,6 +1,6 @@
 # 🌐 Publish a Markdown Repo with Docsify + GitHub Pages
 
-> **Machine:** KpihX-Ubuntu (Ubuntu 24.04 LTS)
+> **Machine:** KpihX-Ubuntu (Ubuntu 25.10)
 > **Lived on:** 2026-03 · **Status:** Production-stable (this very site)
 
 ---
