@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.4.0] — 2026-03-17
+
+### Added
+- [x] `templates/` — reusable config/boilerplate folder
+- [x] `templates/github-pages-index.html` — Docsify site template (VS Code dark, search, inline code fix)
+- [x] `templates/pyproject.toml` — KpihX uv project template (`uv_build`, `src/`, Typer+Rich)
+- [x] `templates/README.md` — template index
+- [x] `tools.md` updated: Templates sections under uv and Docsify
+- [x] `github-pages.md` updated: template callout at index.html section
+- [x] `.agent/AGENT.md` updated: templates maintenance guide + tools.md rule
+
 ## [0.3.0] — 2026-03-17
 
 ### Added

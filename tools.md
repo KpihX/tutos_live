@@ -85,6 +85,9 @@ uv run --with <lib> script.py      # run script with ad-hoc dependency
 uv init --package myproject        # scaffold a new project
 ```
 
+**Templates:**
+- [`pyproject.toml`](templates/pyproject.toml) — KpihX project template: `uv_build` backend, `src/` layout, Typer+Rich, editable install. Copy to project root and fill in the placeholders.
+
 ---
 
 ## 🐙 Git & Forges
@@ -132,8 +135,10 @@ client-side at runtime.
 npx docsify-cli serve .
 ```
 
-→ **Full guide:** [github-pages.md](github-pages.md) — setup, `.nojekyll`
-trap, local preview, GitHub Pages activation.
+→ **Full guide:** [github-pages.md](github-pages.md) — setup, `.nojekyll` trap, local preview, GitHub Pages activation.
+
+**Templates:**
+- [`github-pages-index.html`](templates/github-pages-index.html) — ready-to-use `index.html`: VS Code dark theme, search, sidebar, inline code color fix. Copy to repo root, rename to `index.html`, replace the 4 `SITE_*` placeholders.
 
 ---
 

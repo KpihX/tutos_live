@@ -134,6 +134,34 @@ Every agent adding or editing a `.md` tutorial MUST follow:
 
 6. **No build step.** Pure Markdown + Docsify. No Node, no bundler.
 
+### Templates (`templates/`)
+
+`templates/` holds reusable config and boilerplate files — extracted from tutorials to keep `.md` files readable and to make the configs actually reusable.
+
+**When to create a template:**
+- Any tool entry in `tools.md` that ships with a non-trivial config file (`.toml`, `.html`, `.yaml`, `.json`, `.conf`…)
+- Any tutorial where the reader would copy-paste a block of code verbatim into a new file
+- Rule of thumb: if a code block in a `.md` is longer than ~20 lines AND is a standalone file → externalize it
+
+**Template file format:**
+- Filename: `<tool-or-context>-<purpose>.<ext>` — e.g. `github-pages-index.html`, `pyproject.toml`
+- Must include a header comment block explaining: what it is, how to use it (copy → rename → fill placeholders), and what placeholders to replace
+- Use ALL_CAPS for placeholders: `PROJECT_NAME`, `SITE_TITLE`, etc.
+
+**After creating a template:**
+1. Add a row to `templates/README.md` (the template index)
+2. Under the relevant tool in `tools.md`, add a `**Templates:**` line with a link:
+   ```markdown
+   **Templates:**
+   - [`filename.ext`](templates/filename.ext) — one-line description. Copy to X, rename to Y, fill Z.
+   ```
+3. In the relevant tutorial `.md`, add a callout at the start of the section where the file is introduced:
+   ```markdown
+   > **Template available:** [`templates/filename.ext`](templates/filename.ext) — copy, rename, fill placeholders.
+   ```
+4. `git add templates/ tools.md <tutorial>.md && git commit -m "docs(templates): add <name> template"`
+5. Push both remotes.
+
 ### `tools.md` Maintenance Guide
 
 `tools.md` is the **living tools inventory** — a structured reference page, not a tutorial.

@@ -1,0 +1,62 @@
+# KpihX uv project template
+# ──────────────────────────
+# Usage:
+#   1. Copy to your project root, rename to pyproject.toml
+#   2. Replace placeholders:
+#        PROJECT_NAME   → e.g. "my-tool" (kebab-case, the pip name)
+#        PACKAGE_NAME   → e.g. "my_tool" (snake_case, the import name)
+#        VERSION        → e.g. "0.1.0"
+#        DESCRIPTION    → one-line description
+#        SCRIPT_CMD     → e.g. "my-tool" (the CLI command name)
+#   3. Scaffold with: uv init --package PROJECT_NAME
+#      Then replace pyproject.toml with this file.
+#   4. Install editable (dev): uv tool install --editable .
+#
+# Directory layout expected:
+#   src/
+#   └── PACKAGE_NAME/
+#       ├── __init__.py
+#       ├── cli.py          ← Typer app, entry point
+#       ├── config.py       ← @lru_cache config loader
+#       ├── config.yaml     ← non-sensitive settings
+#       └── .env.example    ← required secret keys (no values)
+
+[build-system]
+requires      = ["uv_build"]
+build-backend = "uv_build"
+
+[project]
+name        = "PROJECT_NAME"
+version     = "VERSION"
+description = "DESCRIPTION"
+authors     = [{ name = "KAMDEM Ivann", email = "ivann.kamdem-pouokam@polytechnique.edu" }]
+readme      = "README.md"
+license     = { text = "MIT" }
+requires-python = ">=3.12"
+
+dependencies = [
+    "typer",    # CLI framework
+    "rich",     # terminal output
+]
+
+[project.scripts]
+SCRIPT_CMD = "PACKAGE_NAME.cli:app"
+
+[tool.uv]
+package = true
+
+# ── Optional dependency groups ──────────────────────────────────────────────
+
+[dependency-groups]
+dev = [
+    "pytest",
+    "pytest-cov",
+]
+
+# ── Common optional extras ───────────────────────────────────────────────────
+# Uncomment as needed:
+#
+# [project.optional-dependencies]
+# http    = ["httpx"]
+# async   = ["anyio"]
+# storage = ["pydantic", "pyyaml"]

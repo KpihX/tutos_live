@@ -3,6 +3,7 @@
 - **Reference**
   - [🏠 Home](README.md)
   - [🧰 Tools & Apps](tools.md)
+  - [📄 Templates](templates/README.md)
 
 - **Tutorials**
   - [🔒 Tailscale](tailscale.md)
