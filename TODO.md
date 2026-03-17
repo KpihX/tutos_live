@@ -1,10 +1,7 @@
 # TODO
 
 ## In Progress
-- [ ] Write `tailscale.md` — MagicDNS permanent DNS fix, SSH config, Bitwarden SSH agent
-- [ ] Write `github-pages.md` — Docsify local + GitHub Pages deployment
-- [ ] Push to GitHub + GitLab (`git push github HEAD && git push gitlab HEAD`)
-- [ ] Enable GitHub Pages (Settings → Pages → Branch: main, Folder: / (root))
+- [ ] Enable GitHub Pages (Settings → Pages → Branch: master, Folder: / (root))
 
 ## Planned Tutorials
 - [ ] `ssh-hardening.md` — SSH key management, Bitwarden SSH agent, port & auth config
@@ -18,4 +15,6 @@
 - [x] `tailscale.md` — MagicDNS permanent DNS fix, SSH config with Bitwarden SSH agent
 - [x] `github-pages.md` — Docsify local setup + GitHub Pages deployment guide
 - [x] `README.md`, `TODO.md`, `CHANGELOG.md`, `_sidebar.md`, `index.html`
-- [x] GitHub + GitLab public repos created and pushed
+- [x] GitHub public repo created: https://github.com/KpihX/tutos_live
+- [x] GitLab public repo created: https://gitlab.com/kpihx/tutos_live
+- [x] Pushed to both remotes
