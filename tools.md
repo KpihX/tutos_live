@@ -64,6 +64,25 @@ Bitwarden SSH agent, FQDN hardening.
 
 ---
 
+## 📦 Node.js
+
+### nvm — Node Version Manager
+
+Manages multiple Node.js versions in isolation. Each project pins its Node
+version via `.nvmrc`. Global packages stay per-version — no system Node, no
+sudo required.
+
+```bash
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+source ~/.zshrc
+nvm install 22
+nvm alias default 22
+```
+
+→ **Full guide:** [npm-prefix.md](npm-prefix.md) — nvm setup, `.nvmrc` auto-switch hook, the system npm EACCES trap, and the `~/.npm-global` fix for daily-driver CLI tools that auto-update.
+
+---
+
 ## 🐍 Python
 
 ### uv
@@ -143,6 +162,22 @@ npx docsify-cli serve .
 ---
 
 ## 🔐 Secrets & Auth
+
+### bw-env
+
+Shell wrapper that injects Bitwarden vault secrets into RAM at unlock time.
+Secrets exist only while the session is active — lock the vault or sleep the
+machine and they're purged. The vault lives in a self-hosted Vaultwarden
+instance, reachable only via Tailscale.
+
+```bash
+bw-env unlock    # prompt for password → inject secrets to RAM
+bw-env status    # check lock state and visible secrets
+bw-env lock      # purge secrets from RAM
+```
+
+→ **Full guide:** [bw-env.md](bw-env.md) — architecture, commands, auto-lock on sleep.
+**Repos:** [GitHub](https://github.com/KpihX/bw-env) · [GitLab](https://gitlab.com/kpihx/bw-env)
 
 ### Bitwarden CLI (`bw`)
 

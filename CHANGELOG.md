@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.5.0] — 2026-03-17
+
+### Added
+- [x] `npm-prefix.md` — nvm full guide + `~/.npm-global` fix for CLI auto-update EACCES
+- [x] `bw-env.md` — quick reference + architecture diagram, points to GitHub/GitLab repos
+- [x] `tools.md` updated: nvm/npm-prefix entry (new `## 📦 Node.js` section) + bw-env entry (with repo links)
+- [x] `_sidebar.md` updated: npm-prefix and bw-env added under Tutorials
+- [x] `README.md` updated: two new rows in Tutorials table
+
 ## [0.4.0] — 2026-03-17
 
 ### Added

@@ -20,6 +20,8 @@ No theory, no made-up examples. Everything here was lived on my machine and docu
 | [🌐 GitHub Pages + Docsify](github-pages.md) | Turn a Markdown repo into a Docsify site — local + online, classic vs `gh` CLI |
 | [🐙 GitHub CLI (gh)](gh.md) | Repos, PRs, issues, releases, CI, raw API — all from the terminal |
 | [🦊 GitLab CLI (glab)](glab.md) | Repos, MRs, issues, pipelines, CI/CD, secrets — GitLab native CLI |
+| [📦 Node.js & npm prefix](npm-prefix.md) | nvm, `.nvmrc`, and the `~/.npm-global` fix for tools that auto-update without nvm sourced |
+| [🔑 bw-env — Secret Injection](bw-env.md) | Bitwarden-backed secrets in RAM: unlock, inject, auto-lock on sleep |
 
 ---
 

@@ -202,6 +202,14 @@ sudo tailscale up
 - ≤ 3 commands, no significant caveats → **inline in `tools.md`**
 - Multi-step setup, config files, gotchas, or debugging needed → **new `.md`** with narrative approach, link from `tools.md`
 
+**Repo links in `tools.md` (mandatory when applicable):** [CLAUDE]
+- If a tool has a pushed GitHub or GitLab repo (own project, not just an upstream), add repo links directly under the install block:
+  ```markdown
+  **Repos:** [GitHub](https://github.com/KpihX/<repo>) · [GitLab](https://gitlab.com/kpihx/<repo>)
+  ```
+- If a template exists for the tool, add a `**Templates:**` subsection after the repo links.
+- The rule: anything that has its own tracked source (pushed repo or templates/) MUST be linked from `tools.md` — treat it as the single discovery entry point.
+
 **After adding a tool to `tools.md`:**
 1. No need to update `_sidebar.md` or `README.md` — `tools.md` is already linked.
 2. `git add tools.md && git commit -m "docs(tools): add <toolname>"  && git push github HEAD && git push gitlab HEAD`
