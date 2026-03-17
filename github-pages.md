@@ -1,91 +1,62 @@
-# 🌐 Publish a Markdown Repo with Docsify + GitHub Pages
+# 🌐 Publishing Markdown Notes as a Website — Docsify + GitHub Pages
 
 > **Machine:** KpihX-Ubuntu (Ubuntu 25.10)
 > **Lived on:** 2026-03 · **Status:** Production-stable (this very site)
 
 ---
 
-## 🧩 Context & Problem
+I had a pile of Markdown files — Ubuntu fixes, homelab notes, things I kept
+looking up. I wanted to share them as a browseable site without setting up
+a build system, a CI pipeline, or committing node_modules to a repo.
 
-You have a folder of Markdown files — field notes, tutorials, docs — and want to
-publish them as a browseable website **without a build step**.
+After looking at Hugo, Jekyll, and MkDocs, I found **Docsify**. The pitch:
+drop one `index.html` in your repo, and it reads your Markdown files on the
+fly in the browser. No build. No generated files. No framework to learn.
+Just push and it's live.
 
-```
-Problem:  Most static site generators (Hugo, Jekyll, MkDocs) require:
-          ┌─────────────────────────────────────────┐
-          │  build step → CI/CD pipeline → deploy   │
-          │  + templating language to learn          │
-          │  + dependencies to manage               │
-          └─────────────────────────────────────────┘
+I tried it. It worked. Then I pushed to GitHub Pages, and the sidebar disappeared.
 
-Goal:     Push Markdown → GitHub Pages serves it instantly.
-          ┌──────────────────────────────────────────┐
-          │  git push → live site. That's it.        │
-          │  No build. No pipeline. No npm in repo.  │
-          └──────────────────────────────────────────┘
-```
-
-**Solution: Docsify** — a single `index.html` loads your `.md` files
-client-side via JavaScript. GitHub Pages serves the raw files; Docsify
-renders them in the browser.
+Here's the full story.
 
 ---
 
-## 🏗️ Architecture & Concepts
+## How Docsify works
 
-### End-to-end flow
-
-```
- Local machine                GitHub                    Browser
- ─────────────               ────────               ─────────────────
-  tutos_live/
-  ├── .nojekyll    git push   GitHub Pages           https://kpihx.
-  ├── index.html ──────────▶  serves files  ──────▶  github.io/
-  ├── _sidebar.md             as-is (raw)            tutos_live/
-  ├── README.md                    │                      │
-  └── *.md                         │              Docsify (CDN JS)
-                                   │              fetches .md files
-                                   │              renders HTML
-                                   │              client-side
-                                   ▼                      ▼
-                             No build step          Full site ✅
-```
-
-### The Jekyll trap (why `.nojekyll` is mandatory)
-
-GitHub Pages runs **Jekyll by default** on every push. Jekyll is a static
-site generator with one silent but critical rule:
+Docsify isn't a static site generator — it's a client-side runtime. The
+browser fetches your `.md` files directly, and a small JavaScript library
+renders them as HTML in real time.
 
 ```
-Jekyll convention:
-  Any file or folder whose name starts with _ is IGNORED.
+Traditional static site generator:
+  source .md files
+       │  build step (Hugo/Jekyll/MkDocs)
+       ▼
+  generated HTML ──► CI/CD ──► host
 
-                   ┌────────────────────────────────┐
-  Without          │  _sidebar.md  ← IGNORED ❌     │
-  .nojekyll:       │  _navbar.md   ← IGNORED ❌     │
-                   │  index.html   → served ✅       │
-                   └────────────────────────────────┘
-  Result: Docsify starts, tries to fetch _sidebar.md
-          → 404 → no sidebar, no navigation.
-
-                   ┌────────────────────────────────┐
-  With             │  .nojekyll present              │
-  .nojekyll:       │  → Jekyll is DISABLED entirely  │
-                   │  → ALL files served as-is ✅    │
-                   └────────────────────────────────┘
-  Result: Docsify fetches _sidebar.md → sidebar works.
+Docsify:
+  source .md files
+       │  git push (that's it)
+       ▼
+  raw files on GitHub Pages
+       │  browser fetches index.html
+       │  Docsify JS fetches *.md on demand
+       ▼
+  rendered in browser ✅
 ```
 
-> **`.nojekyll` is a zero-byte file.** Its presence alone disables Jekyll.
-> No content needed — just the file.
+The entire "build system" is one `<script>` tag pointing at the Docsify CDN.
 
 ---
 
-## 🔧 Setup
+## Setting it up — the three files
 
-### Step 1 — Create `index.html`
+You need exactly three things in your repo root: `index.html`, `_sidebar.md`,
+and `.nojekyll`. Let me walk through each.
 
-The Docsify bootstrap. One file, no build, everything loaded from CDN.
+### `index.html` — the Docsify bootstrap
+
+This is the only non-Markdown file. It loads the Docsify runtime from CDN
+and configures the site — theme, search, sidebar, dark/light toggle.
 
 ```html
 <!DOCTYPE html>
@@ -94,20 +65,33 @@ The Docsify bootstrap. One file, no build, everything loaded from CDN.
   <meta charset="UTF-8">
   <title>Your Site Title</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
-  <!-- Dark/light theme CSS — title attribute is required for theme switching -->
+
+  <!-- Theme CSS — the title attribute is required for theme switching to work -->
   <link rel="stylesheet"
         href="//cdn.jsdelivr.net/npm/docsify-darklight-theme@latest/dist/style.min.css"
         title="docsify-darklight-theme"
         type="text/css" />
+
   <style>
     /* VS Code sidebar layout */
-    .sidebar { display: flex !important; flex-direction: column !important; }
-    .app-name { order: 1 !important; margin-top: 20px !important; font-weight: bold !important; }
-    .search   { order: 2 !important; margin-bottom: 20px !important; }
-    .sidebar-nav { order: 3 !important; flex: 1 !important; }
+    .sidebar      { display: flex !important; flex-direction: column !important; }
+    .app-name     { order: 1 !important; margin-top: 20px !important; font-weight: bold !important; }
+    .search       { order: 2 !important; margin-bottom: 20px !important; }
+    .sidebar-nav  { order: 3 !important; flex: 1 !important; }
+
     /* Theme toggle button */
-    #docsify-darklight-theme { top: 15px !important; right: 15px !important;
-                               width: 28px !important; height: 28px !important; }
+    #docsify-darklight-theme {
+      top: 15px !important; right: 15px !important;
+      width: 28px !important; height: 28px !important;
+    }
+
+    /* Inline code readability — override the default blue codeTypeColor */
+    p code, li code, td code, blockquote code {
+      background-color: var(--codeBackgroundColor) !important;
+      color: var(--codeTextColor) !important;
+      padding: 2px 6px !important;
+      border-radius: 3px !important;
+    }
   </style>
 </head>
 <body>
@@ -116,11 +100,11 @@ The Docsify bootstrap. One file, no build, everything loaded from CDN.
     window.$docsify = {
       name: '🐧 Your Site Name',
       repo: 'https://github.com/yourname/yourrepo',
-      loadSidebar: true,      // reads _sidebar.md for navigation
+      loadSidebar: true,
       subMaxLevel: 2,
       auto2top: true,
-      themeColor: '#007acc',  // VS Code blue accent
-      alias: { '/.*/_sidebar.md': '/_sidebar.md' },  // single sidebar for all pages
+      themeColor: '#007acc',
+      alias: { '/.*/_sidebar.md': '/_sidebar.md' },
       search: {
         maxAge: 86400000,
         paths: 'auto',
@@ -129,22 +113,27 @@ The Docsify bootstrap. One file, no build, everything loaded from CDN.
         depth: 6
       },
       darklightTheme: {
-        defaultTheme: 'dark',   // start in dark mode
+        defaultTheme: 'dark',
         dark: {
-          accent: '#007acc',
           background: '#1e1e1e',
           sidebarBackground: '#252526',
-          textColor: '#d4d4d4'
+          textColor: '#d4d4d4',
+          codeTextColor: '#ce9178',       /* readable orange on dark */
+          codeBackgroundColor: '#2d2d2d',
+          codeTypeColor: '#ce9178'        /* match codeTextColor — avoid blue override */
         },
         light: {
-          accent: '#007acc',
           background: '#ffffff',
-          textColor: '#333333'
+          sidebarBackground: '#f3f3f3',
+          textColor: '#333333',
+          codeTextColor: '#c7254e',       /* readable dark red on light */
+          codeBackgroundColor: '#f0f0f0', /* visible contrast on white page */
+          codeTypeColor: '#c7254e'        /* match codeTextColor — avoid blue override */
         }
       }
     }
   </script>
-  <!-- Load order matters: docsify core first, then plugins -->
+  <!-- Load order matters: docsify core, then plugins -->
   <script src="//cdn.jsdelivr.net/npm/docsify@4"></script>
   <script src="//cdn.jsdelivr.net/npm/docsify-darklight-theme@latest/dist/index.min.js"></script>
   <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/search.min.js"></script>
@@ -153,29 +142,20 @@ The Docsify bootstrap. One file, no build, everything loaded from CDN.
 </html>
 ```
 
-**Script load order:**
+Two things worth noting here.
 
-```
-  docsify@4 (core)
-      │
-      ▼
-  docsify-darklight-theme  ← registers theme plugin into docsify
-      │
-      ▼
-  search.min.js            ← registers search plugin
-      │
-      ▼
-  prism-bash.min.js        ← syntax highlighting for bash blocks
-```
+The `title` attribute on the `<link>` tag is not optional. The darklight theme
+plugin locates the stylesheet by that exact string to swap it at runtime. Remove
+it, and the theme toggle button renders as an empty square and does nothing.
 
-> **`title` on the `<link>` tag is not optional.** The darklight theme uses it
-> to identify and swap the stylesheet at runtime. Remove it and the toggle breaks.
+And `codeTypeColor` — the darklight theme uses this for inline `<code>` elements.
+The default is `#007acc` (VS Code blue), which looks fine in a code editor but
+is hard to read at body-text size, especially on a white background. Setting it
+to the same value as `codeTextColor` keeps things consistent and readable.
 
----
+### `_sidebar.md` — the navigation
 
-### Step 2 — Create `_sidebar.md`
-
-Docsify fetches this file to build the left navigation panel:
+Docsify reads this file to build the left panel. The format is simple Markdown:
 
 ```markdown
 - **My Site**
@@ -189,147 +169,133 @@ Docsify fetches this file to build the left navigation panel:
   - [GitHub](https://github.com/yourname/yourrepo)
 ```
 
+Each `- [Label](file.md)` becomes a clickable entry. Indented items are
+sub-entries. Update this file every time you add a tutorial.
+
+### `.nojekyll` — the most important file you didn't know you needed
+
+I pushed everything and visited my GitHub Pages URL. The content loaded.
+The dark theme worked. But the sidebar was completely gone.
+
+After some digging I found the cause: **GitHub Pages runs Jekyll by default**,
+and Jekyll silently drops any file or directory whose name starts with `_`.
+
 ```
-_sidebar.md structure → rendered panel
-─────────────────────   ───────────────
-- **Section**           ■ Section
-  - [Label](file.md)     └─ Label        ← clickable
-  - [Label](file.md)     └─ Label
+GitHub Pages default behavior (Jekyll enabled):
+  ├── index.html     → served ✅
+  ├── README.md      → served ✅
+  ├── tailscale.md   → served ✅
+  └── _sidebar.md    → IGNORED ❌  (Jekyll convention: _ prefix = private)
+
+  Docsify tries to fetch _sidebar.md → 404 → no navigation panel.
 ```
 
-Update this file every time you add a new tutorial.
-
----
-
-### Step 3 — Create `.nojekyll`  ⚠️ Critical
+The fix is a single empty file at the repo root:
 
 ```bash
-# Zero-byte file — content doesn't matter, presence does
 touch .nojekyll
 ```
 
 ```
-repo root/
-├── .nojekyll    ← tells GitHub Pages: skip Jekyll, serve everything as-is
-├── index.html
-├── _sidebar.md  ← will be served (Jekyll would have dropped it)
-└── README.md
+With .nojekyll present:
+  GitHub Pages sees it → disables Jekyll entirely → serves all files as-is
+  ├── index.html     → served ✅
+  ├── _sidebar.md    → served ✅  (Jekyll is gone, can't touch it)
+  └── *.md           → served ✅
 ```
 
-**Without this file: sidebar is invisible.** Jekyll runs, silently drops
-`_sidebar.md`, Docsify gets a 404 when it tries to fetch it.
+`.nojekyll` has no content — its presence is the signal. Commit it, push it,
+and the sidebar appears.
 
 ---
 
-### Step 4 — Preview Locally
+## Previewing locally before pushing
+
+Before pushing, I always verify the site locally. No server needed — just `npx`:
 
 ```bash
 cd ~/Work/tutos_live
 
-# One-shot, no global install needed
 npx docsify-cli serve .
+# → Serving at http://localhost:3000
 ```
 
-```
-  Serving /home/kpihx/Work/tutos_live now.
-  Listening at http://localhost:3000
-                        │
-              open in browser
-                        │
-          ┌─────────────▼──────────────┐
-          │  sidebar ✅  │  content     │
-          │  _sidebar.md │  README.md  │
-          │  (rendered)  │  (rendered) │
-          └─────────────────────────── ┘
-```
+`npx` downloads `docsify-cli` on first run, caches it, and never touches
+your repo. Open `http://localhost:3000`, navigate the sidebar, test search,
+toggle the theme.
 
-> Changes to `.md` files are reflected on browser reload — no rebuild.
-> `npx` caches `docsify-cli` on first run. Never add it to your repo.
+> One gotcha: don't open `index.html` directly in the browser via `file://`.
+> Browser security blocks the XHR requests Docsify uses to fetch `.md` files.
+> Always go through the local server.
 
 ---
 
-### Step 5 — Create the GitHub Repo & Push
+## Creating the GitHub repo — two ways
 
-Two approaches — same result, different tools:
+Once everything works locally, time to put it on GitHub.
 
 ```
   ┌──────────────────────────────────────────────────────┐
-  │  Method A — Classic                                  │
-  │  git init → github.com/new (browser) →              │
-  │  git remote add → git push                          │
+  │  Method A — git + github.com                         │
+  │  You open a browser, create the repo through the UI, │
+  │  then add the remote and push from the terminal.     │
   ├──────────────────────────────────────────────────────┤
-  │  Method B — gh CLI (terminal only, zero browser)     │
-  │  gh repo create → git remote add → git push         │
+  │  Method B — gh CLI                                   │
+  │  Everything from the terminal. No browser needed.    │
   └──────────────────────────────────────────────────────┘
 ```
 
-#### Method A — Classic: git + github.com
+### Method A — git + github.com
 
 ```bash
-# 1. Stage and commit everything (including .nojekyll!)
+# Stage and commit — including .nojekyll
 git add .
 git commit -m "feat: initial Docsify setup"
 ```
 
-Open **https://github.com/new** in your browser:
-- Repository name: `tutos_live`
-- Visibility: Public
-- ❌ Do NOT check "Initialize this repository" (you already have files)
-- Click **Create repository**
-
-GitHub shows the remote URL — copy the **SSH** one:
+Go to **https://github.com/new**. Fill in the name, choose Public, and —
+importantly — **don't** check "Initialize this repository". You already have
+files. GitHub will show you a remote URL; grab the SSH one.
 
 ```bash
-# 2. Wire the remote
 git remote add github git@github.com:yourname/tutos_live.git
-
-# 3. Push
 git push -u github master
 ```
 
-#### Method B — gh CLI (terminal only)
+### Method B — gh CLI (terminal only)
 
 ```bash
-# 1. Stage and commit everything (including .nojekyll!)
+# Stage and commit — including .nojekyll
 git add .
 git commit -m "feat: initial Docsify setup"
 
-# 2. Create the repo on GitHub
+# Create the repo on GitHub
 gh repo create yourname/tutos_live \
   --public \
   --description "My Ubuntu live tutorials"
 
-# 3. Add remote (gh create does NOT add it automatically)
+# Add the remote (gh create doesn't add it automatically)
 git remote add github git@github.com:yourname/tutos_live.git
 
-# 4. Push
+# Push
 git push github HEAD
 ```
 
+> For a full `gh` CLI guide — repos, PRs, issues, releases — see [gh.md](gh.md).
+
 ---
 
-### Step 6 — Enable GitHub Pages
+## Enabling GitHub Pages — two ways
 
-```
-  ┌──────────────────────────────────────────────────────┐
-  │  Method A — Web UI                                   │
-  │  Settings → Pages → pick branch → Save              │
-  ├──────────────────────────────────────────────────────┤
-  │  Method B — gh api (one command, zero browser)       │
-  │  gh api repos/.../pages --method POST ...           │
-  └──────────────────────────────────────────────────────┘
-```
+After pushing, Pages needs to be activated once. Again, two options:
 
-#### Method A — Web UI
+### Method A — web UI
 
-1. Go to your repo: `https://github.com/yourname/tutos_live`
-2. **Settings** → **Pages** (left sidebar)
-3. Under **Build and deployment**:
-   - Source: `Deploy from a branch`
-   - Branch: `master` · Folder: `/ (root)`
-4. Click **Save**
+Go to your repo → **Settings** → **Pages**.
+Under *Build and deployment*: Source = `Deploy from a branch`,
+Branch = `master`, Folder = `/ (root)`. Save.
 
-#### Method B — gh api (instant, no browser)
+### Method B — gh api (instant, no browser)
 
 ```bash
 gh api repos/yourname/tutos_live/pages \
@@ -338,47 +304,22 @@ gh api repos/yourname/tutos_live/pages \
   -f "source[path]=/"
 ```
 
-Response confirms activation:
-```json
-{
-  "html_url": "https://yourname.github.io/tutos_live/",
-  "source": { "branch": "master", "path": "/" },
-  "public": true
-}
-```
-
-Check status / update source later:
-```bash
-# Status
-gh api repos/yourname/tutos_live/pages
-
-# Change branch
-gh api repos/yourname/tutos_live/pages \
-  --method PUT \
-  -f "source[branch]=main" \
-  -f "source[path]=/"
-```
-
-After ~1 minute, site is live:
+The response includes `html_url` — your site's URL. After about a minute,
+it's live.
 
 ```
-  git push
-     │
-     ▼
-  GitHub Pages  (Jekyll disabled by .nojekyll)
-  ├── index.html     → entry point
-  ├── .nojekyll      → disables Jekyll
-  ├── _sidebar.md    → served ✅ (not ignored)
-  └── *.md           → served ✅
-     │
-     ▼
-  https://yourname.github.io/tutos_live/
-  ├── sidebar visible ✅
-  ├── dark/light toggle ✅
-  └── search working ✅
+git push
+  │
+  ▼
+GitHub Pages (Jekyll disabled by .nojekyll)
+  ├── index.html   → entry point
+  ├── _sidebar.md  → served ✅ (not dropped)
+  └── *.md         → fetched on demand by Docsify
+  │
+  ▼
+https://yourname.github.io/tutos_live/
+  → sidebar ✅ · dark toggle ✅ · search ✅
 ```
-
-> **For more on `gh`**, see → [gh.md](gh.md)
 
 ---
 
@@ -386,78 +327,52 @@ After ~1 minute, site is live:
 
 ### Sidebar not showing
 
-**Most likely cause: `.nojekyll` missing.**
+Almost certainly `.nojekyll` is missing. Check:
 
 ```bash
-# Check it exists
 ls -la .nojekyll
-
-# Create if missing
-touch .nojekyll
-git add .nojekyll
-git commit -m "fix: add .nojekyll to disable Jekyll"
-git push github HEAD
 ```
 
-Wait ~1 min after push, then hard-refresh the browser (`Ctrl+Shift+R`).
-
-Secondary cause: `loadSidebar: true` missing from `window.$docsify`.
-
-### Theme toggle is a blank square / not working
-
-The `title` attribute on the CSS `<link>` tag is missing or wrong:
-
-```html
-<!-- ✅ Correct — title must match exactly -->
-<link rel="stylesheet"
-      href="...docsify-darklight-theme.../style.min.css"
-      title="docsify-darklight-theme"
-      type="text/css" />
-
-<!-- ❌ Wrong — no title → plugin can't find the stylesheet to swap -->
-<link rel="stylesheet" href="...docsify-darklight-theme.../style.min.css" />
-```
-
-Also verify load order: `docsify@4` must load **before** the theme plugin JS.
-
-### Site shows raw Markdown
-
-`index.html` is missing, or the Docsify CDN `<script>` tag has a typo.
-Check the browser console (F12) for 404s.
-
-### Local preview: port 3000 already in use
-
+If absent:
 ```bash
-npx docsify-cli serve . --port 3001
+touch .nojekyll
+git add .nojekyll && git commit -m "fix: add .nojekyll" && git push github HEAD
 ```
 
-### Search not working locally
+Wait ~1 min, then hard-refresh (`Ctrl+Shift+R`).
 
-Browser security blocks XHR from `file://`. Always use
-`npx docsify-cli serve .` — never open `index.html` directly in the browser.
+If `.nojekyll` exists, check that `loadSidebar: true` is in `window.$docsify`
+and that `_sidebar.md` is at repo root.
 
-### GitHub Pages shows 404 after enabling
+### Theme toggle is an empty square
 
-- Wait 1-2 minutes — first deploy takes time
-- Verify the branch and path in Settings → Pages
-- Check that `index.html` is at repo root (not in a subfolder)
+The `title="docsify-darklight-theme"` attribute is missing from the `<link>` tag.
+The plugin locates the stylesheet by that exact string.
+
+### Search not working
+
+Only works through the local server. Open `http://localhost:3000`, not `file://`.
+
+### GitHub Pages shows 404
+
+Wait 1-2 minutes after enabling — the first deploy takes time. If it persists,
+verify the branch and root folder in Settings → Pages.
 
 ---
 
 ## ✅ Verification
 
 ```bash
-# 1. Local — full feature check
+# Local
 npx docsify-cli serve .
 # → sidebar visible, dark toggle works, search works
 
-# 2. Remote — HTTP 200
+# Remote — site is up
 curl -s -o /dev/null -w "%{http_code}" https://yourname.github.io/tutos_live/
 # → 200
 
-# 3. _sidebar.md reachable (Jekyll check)
-curl -s -o /dev/null -w "%{http_code}" \
-  https://yourname.github.io/tutos_live/_sidebar.md
+# Remote — _sidebar.md is served (Jekyll is disabled)
+curl -s -o /dev/null -w "%{http_code}" https://yourname.github.io/tutos_live/_sidebar.md
 # → 200  (would be 404 without .nojekyll)
 ```
 
@@ -467,5 +382,5 @@ curl -s -o /dev/null -w "%{http_code}" \
 
 - [Docsify documentation](https://docsify.js.org)
 - [docsify-darklight-theme](https://github.com/boopathikumar018/docsify-darklight-theme)
-- [GitHub Pages documentation](https://docs.github.com/en/pages)
+- [GitHub Pages docs](https://docs.github.com/en/pages)
 - [GitHub CLI (`gh`) full guide](gh.md)

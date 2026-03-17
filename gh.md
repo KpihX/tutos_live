@@ -1,521 +1,334 @@
-# 🐙 GitHub CLI (`gh`) — Ubuntu 25.10 Field Guide
+# 🐙 GitHub CLI (`gh`) — Stop Using the Browser for Daily GitHub Tasks
 
 > **Machine:** KpihX-Ubuntu (Ubuntu 25.10)
 > **Lived on:** 2026-03 · **Status:** Daily driver
 
 ---
 
-## 🧩 Context & Problem
+For a long time I was doing everything through github.com: creating repos,
+opening pull requests, checking CI status, managing releases. One tab per
+action, forms to fill, pages to navigate. Fine when you do it occasionally.
+When it's part of your daily flow, the browser round-trips add up.
 
-```
-Problem:  GitHub's web UI is slow for repetitive tasks:
-          - Creating repos
-          - Opening / merging PRs
-          - Checking CI status
-          - Configuring settings (Pages, secrets, branch rules)
+`gh` is GitHub's official CLI. After installing it, I barely open github.com
+anymore — except to read code review comments, which is still better in a browser.
 
-Goal:     Do everything from the terminal.
-          One tool, full GitHub API access.
-```
-
-**`gh`** is GitHub's official CLI — it wraps the REST + GraphQL APIs and
-integrates with `git`. Anything you can do on github.com, you can do with `gh`.
+Here's what I actually use it for, in the order I started using it.
 
 ---
 
-## 🏗️ Architecture
+## Installing on Ubuntu 25.10
 
-```
-You (terminal)
-    │
-    ▼
- gh CLI  ──── REST/GraphQL ────▶  api.github.com
-    │                                   │
-    │        SSH (git ops)              │
-    └──── git@github.com ◀─────────────┘
-              │
-         Your repos
-```
-
-`gh` handles auth, then delegates actual git operations to your system `git`
-(with your SSH keys). It never touches your SSH keys directly.
-
----
-
-## 🔧 Installation
-
-### Option A — Official apt repo (recommended, auto-updates)
+The official apt repo is the cleanest option — it gets updates automatically.
 
 ```bash
-# 1. Add GitHub CLI apt repo
+# Add GitHub's apt repo
 (type -p wget >/dev/null || sudo apt install wget -y) \
   && sudo mkdir -p -m 755 /etc/apt/keyrings \
   && wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg \
      | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null \
   && sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg \
-  && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" \
+  && echo "deb [arch=$(dpkg --print-architecture) \
+     signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] \
+     https://cli.github.com/packages stable main" \
      | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
 
-# 2. Install
 sudo apt update && sudo apt install gh -y
 
-# 3. Verify
 gh --version
-# → gh version 2.x.x (2024-xx-xx)
-```
-
-### Option B — Direct binary (no apt)
-
-```bash
-# Get latest release URL from: https://github.com/cli/cli/releases
-VERSION="2.68.0"
-curl -Lo /tmp/gh.tar.gz \
-  "https://github.com/cli/cli/releases/download/v${VERSION}/gh_${VERSION}_linux_amd64.tar.gz"
-tar -xzf /tmp/gh.tar.gz -C /tmp
-sudo install /tmp/gh_${VERSION}_linux_amd64/bin/gh /usr/local/bin/gh
+# → gh version 2.x.x
 ```
 
 ---
 
-## 🔐 Authentication
+## Authenticating
 
 ```bash
 gh auth login
 ```
 
-Interactive prompts — recommended answers for KpihX setup:
+`gh` walks you through an interactive setup. The answers that make sense for
+my setup:
 
 ```
 ? What account do you want to log into?   GitHub.com
 ? What is your preferred protocol?        SSH
-? Upload your public SSH key to GitHub?   Skip (Bitwarden manages keys)
+? Upload your public SSH key to GitHub?   Skip  (Bitwarden manages my keys)
 ? How would you like to authenticate?     Login with a web browser
 ```
 
-> Opens browser → paste one-time code → authorize.
-> Token is stored in `~/.config/gh/hosts.yml`.
+A code appears in the terminal. Copy it, the browser opens automatically,
+paste it, authorize. Done — token is stored in `~/.config/gh/hosts.yml`.
 
-**Check auth status:**
+Check it worked:
 
 ```bash
 gh auth status
-# → ✓ Logged in to github.com account KpihX (keyring)
-#   ✓ Git operations for github.com configured to use ssh protocol
-```
-
-**Token scope** (what gh can access):
-
-```bash
-gh auth status --show-token   # shows scopes, not the token value
+# → ✓ Logged in to github.com account KpihX
+# → ✓ Git operations configured to use ssh protocol
 ```
 
 ---
 
-## 📦 Repositories
+## Creating repos
 
-### Create a repo
+This was the first thing I replaced. Instead of:
+
+> github.com → New → fill form → copy URL → terminal → git remote add → push
+
+I now do:
 
 ```bash
-# Public, from current directory
-gh repo create kpihx/my-project --public --description "My cool project"
+# From inside the project directory
+gh repo create kpihx/tutos_live \
+  --public \
+  --description "Ubuntu-focused live tutorials"
 
-# Private, with README + gitignore
-gh repo create kpihx/my-project --private --add-readme --gitignore Python
+# Then add the remote and push as usual
+git remote add github git@github.com:kpihx/tutos_live.git
+git push github HEAD
+```
+
+Other useful variations:
+
+```bash
+# Private repo
+gh repo create kpihx/private-notes --private
 
 # Interactive (asks all questions)
 gh repo create
-```
 
-### Clone a repo
-
-```bash
-# Clone your own repo (uses SSH automatically)
-gh repo clone kpihx/tutos_live
-
-# Clone someone else's repo
+# Clone someone else's repo (uses SSH automatically)
 gh repo clone cli/cli
-```
 
-### Fork a repo
-
-```bash
 # Fork + clone in one shot
 gh repo fork cli/cli --clone
-
-# Fork only (no clone)
-gh repo fork cli/cli
 ```
 
-### List your repos
+Once a repo exists, `gh repo view` gives a quick summary, and `--web` opens
+it in the browser if you need the full UI:
 
 ```bash
-# Public repos, sorted by push date
-gh repo list kpihx --limit 20
-
-# Filter by language
-gh repo list kpihx --language python
-
-# Only private repos
-gh repo list kpihx --visibility private
-```
-
-### View repo info
-
-```bash
-# Summary in terminal
 gh repo view kpihx/tutos_live
-
-# Open in browser
 gh repo view kpihx/tutos_live --web
-```
 
-### Delete a repo
-
-```bash
-gh repo delete kpihx/test-repo --confirm
-```
-
-### Rename / transfer
-
-```bash
-gh repo rename new-name
-gh repo transfer kpihx/project target-org
+# List your repos
+gh repo list kpihx --limit 20
+gh repo list kpihx --language python
 ```
 
 ---
 
-## 🔀 Pull Requests
+## Pull requests
 
-```
-Local branch → PR → review → merge
-      │                         │
-    git push               gh pr merge
-```
-
-### Create a PR
+PRs were next. The `gh pr create` flow is fast enough that I stopped
+reaching for the browser entirely.
 
 ```bash
-# From current branch, interactive
+# From a feature branch, interactive
 gh pr create
 
-# One-liner (title + body + target branch)
+# Or one-liner
 gh pr create \
   --title "feat: add tailscale tutorial" \
   --body "Covers MagicDNS fix, SSH config, Bitwarden SSH agent" \
-  --base main \
-  --head feat/tailscale-tuto
+  --base main
 
-# Draft PR
+# Draft (mark as not ready for review)
 gh pr create --draft --title "WIP: new tutorial"
 ```
 
-### List PRs
+On the other end — reviewing and managing PRs I received:
 
 ```bash
-# All open PRs
+# See what's open
 gh pr list
 
-# Filter by author / label / state
-gh pr list --author kpihx
-gh pr list --label bug
-gh pr list --state closed
-```
-
-### View a PR
-
-```bash
-# By number
+# Read a specific PR (with diff)
 gh pr view 42
-
-# Open in browser
-gh pr view 42 --web
-
-# Show diff
 gh pr diff 42
-```
 
-### Review a PR
-
-```bash
-# Add a comment
-gh pr review 42 --comment --body "LGTM, one nit below"
+# Checkout the branch to test it locally
+gh pr checkout 42
 
 # Approve
 gh pr review 42 --approve
 
-# Request changes
-gh pr review 42 --request-changes --body "Please add tests"
+# Merge (squash is my default)
+gh pr merge 42 --squash --remove-branch
 ```
 
-### Checkout a PR locally
-
 ```bash
-# Fetches the branch and checks it out
-gh pr checkout 42
-```
-
-### Merge a PR
-
-```bash
-# Merge commit
-gh pr merge 42
-
-# Squash merge
-gh pr merge 42 --squash
-
-# Rebase merge
-gh pr merge 42 --rebase
-
-# Auto-merge when checks pass
-gh pr merge 42 --auto --squash
-```
-
-### Close / reopen
-
-```bash
+# Close / reopen without merging
 gh pr close 42
 gh pr reopen 42
 ```
 
 ---
 
-## 🐛 Issues
-
-### Create an issue
+## Issues
 
 ```bash
-# Interactive
-gh issue create
-
-# One-liner
+# Open an issue
 gh issue create \
   --title "MagicDNS breaks on X WiFi" \
-  --body "Resolved by anchoring 100.100.100.100 in resolved.conf.d" \
+  --body "Root cause: search domain ordering in systemd-resolved" \
   --label bug \
   --assignee kpihx
-```
 
-### List issues
-
-```bash
+# List open issues
 gh issue list
 gh issue list --label "bug"
-gh issue list --assignee kpihx
 gh issue list --state closed
-```
 
-### View / comment
-
-```bash
-gh issue view 7
+# Comment and close
 gh issue comment 7 --body "Fixed in #42"
-```
-
-### Close / reopen
-
-```bash
-gh issue close 7
 gh issue close 7 --comment "Fixed in commit abc1234"
-gh issue reopen 7
 ```
 
 ---
 
-## 🚀 Releases
+## Releases
 
-### Create a release
+When a project reaches a stable point, I tag and release from the terminal:
 
 ```bash
-# Tag + release notes from merged PRs (auto-generated)
+# Tag + release with auto-generated notes from merged PRs
 gh release create v1.0.0 \
   --title "v1.0.0 — Initial stable release" \
-  --notes "First production-ready version" \
+  --generate-notes \
   --latest
 
-# With file assets
+# With file assets (binaries, archives)
 gh release create v1.0.0 \
   --title "v1.0.0" \
-  dist/myapp-linux-amd64 \
-  dist/myapp-darwin-arm64
+  dist/myapp-linux-amd64 dist/myapp-darwin-arm64
 
-# Draft release (not published yet)
+# Draft first, publish when ready
 gh release create v1.0.0 --draft
-
-# Pre-release
-gh release create v1.0.0-beta.1 --prerelease
 ```
-
-### List / view
 
 ```bash
 gh release list
 gh release view v1.0.0
-```
-
-### Download assets
-
-```bash
-# Download all assets of a release
-gh release download v1.0.0
-
-# Specific file pattern
 gh release download v1.0.0 --pattern "*.tar.gz"
 ```
 
 ---
 
-## ⚙️ Repository Settings via API
+## The `gh api` escape hatch
 
-`gh` exposes the **full GitHub REST API** via `gh api`. Anything not in the
-standard subcommands can be done this way.
+Everything above covers the most common workflows. For anything else —
+settings, webhooks, branch protection, Pages config — `gh api` exposes the
+full GitHub REST API directly from the terminal.
 
-### GitHub Pages
+I use it most often for two things.
+
+**Enabling GitHub Pages on a new repo:**
 
 ```bash
-# Enable Pages (branch + root)
 gh api repos/kpihx/tutos_live/pages \
   --method POST \
   -f "source[branch]=master" \
   -f "source[path]=/"
-
-# Check Pages status
-gh api repos/kpihx/tutos_live/pages
-
-# Update Pages source
-gh api repos/kpihx/tutos_live/pages \
-  --method PUT \
-  -f "source[branch]=main" \
-  -f "source[path]=/"
 ```
 
-### Secrets (Actions)
+**Setting repo topics:**
 
 ```bash
-# Set a repo secret
-gh secret set MY_API_KEY
-# → prompts for value (hidden input)
+gh api repos/kpihx/tutos_live/topics \
+  --method PUT \
+  -f "names[]=ubuntu" -f "names[]=docsify" -f "names[]=tutorials"
+```
 
-# List secrets (names only — values never shown)
-gh secret list
+**Managing secrets (Actions):**
 
-# Delete a secret
+```bash
+gh secret set MY_API_KEY    # prompts for value, hidden input
+gh secret list              # names only — values never shown
 gh secret delete MY_API_KEY
 ```
 
-### Branch protection rules
+**Branch protection:**
 
 ```bash
-# Require PR reviews before merge on main
 gh api repos/kpihx/my-project/branches/main/protection \
   --method PUT \
   --input - <<'EOF'
 {
   "required_status_checks": null,
   "enforce_admins": false,
-  "required_pull_request_reviews": {
-    "required_approving_review_count": 1
-  },
+  "required_pull_request_reviews": { "required_approving_review_count": 1 },
   "restrictions": null
 }
 EOF
 ```
 
-### Topics / description
-
-```bash
-# Set topics
-gh api repos/kpihx/tutos_live/topics \
-  --method PUT \
-  -f "names[]=ubuntu" -f "names[]=docsify" -f "names[]=tutorials"
-
-# Update description
-gh api repos/kpihx/tutos_live \
-  --method PATCH \
-  -f description="Ubuntu field notes — real problems, real fixes"
-```
-
 ---
 
-## 🔄 GitHub Actions / CI
+## GitHub Actions — checking CI without a browser
 
 ```bash
-# List workflows
-gh workflow list
-
-# View runs for a workflow
-gh run list --workflow=ci.yml
+# List recent workflow runs
+gh run list
 
 # Watch a run in real time
 gh run watch
 
-# View logs of a specific run
+# View logs of a failed run
 gh run view 1234567 --log
 
-# Re-run failed jobs
+# Re-run only failed jobs
 gh run rerun 1234567 --failed
 
-# Trigger a workflow manually (workflow_dispatch)
+# Trigger a workflow manually
 gh workflow run deploy.yml --ref main
 ```
 
 ---
 
-## 🛠️ Useful Shortcuts
+## A few shortcuts I use daily
 
 ```bash
-# Open current repo in browser
+# Open current repo in browser (for when I do need the UI)
 gh browse
 
-# Open specific file/issue/PR in browser
-gh browse README.md
+# Open current repo's issues directly
 gh browse --issues
-gh browse --settings
 
-# SSH key management
+# List and manage SSH keys on GitHub
 gh ssh-key list
 gh ssh-key add ~/.ssh/id_ed25519.pub --title "KpihX-Ubuntu"
-gh ssh-key delete <key-id>
 
-# GPG key management
-gh gpg-key list
-gh gpg-key add < ~/.gnupg/mykey.gpg
+# Check API rate limit (5000 requests/hour authenticated)
+gh api rate_limit | jq '.rate'
 ```
 
 ---
 
-## 🐛 Debugging
+## 🐛 Quick fixes
 
-### Auth fails
-
+**Auth fails or token expired**
 ```bash
-# Re-authenticate
-gh auth login
-
-# Refresh token scopes
-gh auth refresh --scopes repo,read:org
+gh auth login  # re-authenticates, overwrites stored token
 ```
 
-### SSH vs HTTPS mismatch
-
+**`gh` uses HTTPS instead of SSH for git operations**
 ```bash
-# Force SSH for all GitHub git operations
 gh config set git_protocol ssh --host github.com
 ```
 
-### Rate limit
-
+**Rate limited**
 ```bash
-# Check remaining API calls
-gh api rate_limit | jq '.rate'
-# → { "limit": 5000, "remaining": 4987, "reset": 1710000000 }
+gh api rate_limit | jq '{limit: .rate.limit, remaining: .rate.remaining}'
+# If remaining is 0, wait until .rate.reset (Unix timestamp)
 ```
 
 ---
 
-## ✅ Verification
+## ✅ Quick health check
 
 ```bash
-# Full health check
 gh auth status
 gh repo list kpihx --limit 5
 gh api user | jq '{login, name, public_repos}'
@@ -525,6 +338,6 @@ gh api user | jq '{login, name, public_repos}'
 
 ## 📚 References
 
-- [GitHub CLI docs](https://cli.github.com/manual/)
+- [GitHub CLI manual](https://cli.github.com/manual/)
 - [GitHub REST API](https://docs.github.com/en/rest)
-- [gh release notes](https://github.com/cli/cli/releases)
+- [GitLab CLI (`glab`) guide](glab.md)

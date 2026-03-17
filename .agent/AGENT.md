@@ -106,16 +106,24 @@
 
 Every agent adding or editing a `.md` tutorial MUST follow:
 
-1. **Problem First — Why before How.** Start with the wall encountered, the error, the confusion. Never cold command lists.
+1. **Narrative / intuition-formalism approach (mandatory).** Tutorials are not manuals — they are stories of problems encountered and solved, told progressively:
+   - Start with the concrete situation: "I was trying to do X." Never open with a tool description ("Tailscale gives you...").
+   - Problems emerge as the story unfolds — never list all problems upfront. Hit wall → solve → next wall → solve. The reader follows the journey.
+   - First give the intuition ("why this breaks"), THEN the formal solution (the command/config). Never the reverse.
+   - Between major sections, use a short narrative bridge: "That worked — until I changed networks." Not just a header jump.
+   - The tone is personal and direct. First or second person. "I hit this." "You'll see." Not passive voice.
+
 2. **Mandatory ASCII/Unicode graphical illustrations.** Every tutorial MUST include at minimum:
-   - An architecture diagram (boxes, arrows, tree) showing how components relate
-   - A visual separator or flow diagram between major sections
-   - Boxed rationale or inline ASCII callouts for key concepts
-   - Use `│`, `├──`, `└──`, `↓`, `→`, `←`, `↑`, `┌─`, `─┐` freely. Make structure visible.
+   - An architecture or flow diagram showing how components relate (use `│`, `├──`, `└──`, `↓`, `→`, `←`, `↑`, `┌─`, `─┐`)
+   - A before/after or contrast diagram for any key fix or concept
+   - Inline ASCII callouts or boxes for important warnings or rationale
+   - Diagrams come AFTER the narrative sets context — they crystallize what the story explained, not replace it.
+
 3. **Meaningful emojis** in section headers and callouts — signal, not noise.
-4. **Real examples only:** use `kpihx-labs`, `kpihx-ubuntu`, `ivann`, `tail2527bd.ts.net` — not generic placeholders. **But NEVER include sensitive info:** no real IPs, no system-specific paths like `/dev/shm`, no tokens, no personal identifiers beyond the agreed alias `KpihX`.
-5. **Systematic sections:** 🧩 Context & Problem → 🏗️ Architecture & Concepts → 🔧 Setup → 🐛 Debugging → ✅ Verification.
-6. **After every new tutorial — mandatory post-tutorial checklist (in order):**
+
+4. **Real examples only:** use `kpihx-labs`, `kpihx-ubuntu`, `ivann`, `tail2527bd.ts.net` — not generic placeholders. **But NEVER include sensitive info:** no real IPs, no system-specific internal paths, no tokens, no personal identifiers beyond the agreed alias `KpihX` / `KAMDEM Ivann`.
+
+5. **After every new tutorial — mandatory post-tutorial checklist (in order):**
    1. Update `_sidebar.md` — add entry under correct category
    2. Update `README.md` — add row to the Tutorials table
    3. Update `CHANGELOG.md` — add entry under current version
@@ -123,7 +131,8 @@ Every agent adding or editing a `.md` tutorial MUST follow:
    5. `git add <new-file> _sidebar.md README.md CHANGELOG.md TODO.md`
    6. `git commit -m "docs: add <tutorial-name> tutorial"`
    7. `git push github HEAD && git push gitlab HEAD`
-7. **No build step.** Pure Markdown + Docsify. No Node, no bundler.
+
+6. **No build step.** Pure Markdown + Docsify. No Node, no bundler.
 
 ### Structure
 

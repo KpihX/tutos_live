@@ -1,100 +1,146 @@
-# 🔒 Tailscale on Ubuntu 25.10
+# 🔒 Tailscale — SSH to Your Homelab, From Anywhere
 
 > **Machine:** KpihX-Ubuntu (Ubuntu 25.10) · **Node:** `kpihx-labs` (homelab server)
 > **Lived on:** 2026-03 · **Status:** Production-stable
 
 ---
 
-## 🧩 Context & Problem
-
-Tailscale gives you a private mesh network (MagicDNS, WireGuard overlay) so you can SSH into `kpihx-labs` from anywhere — no port forwarding, no public IP needed.
-
-Two classes of problems came up in practice:
-
-```
-Problem ①  MagicDNS intermittently broken
-           → `ssh kpihx-labs` resolves to wrong IP (network catch-all from DHCP)
-             instead of the expected Tailscale IP
-
-Problem ②  SSH auth requires Bitwarden Desktop popup approval
-           → Need SSH agent wired to Bitwarden before git push / SSH
-
-Problem ③  `HostName kpihx-labs` is fragile under X WiFi DNS
-           → FQDN `.tail2527bd.ts.net` is immune (routed ONLY via Tailscale)
-```
-
----
-
-## 🏗️ Architecture & Concepts
-
-```
-KpihX-Ubuntu
-│
-├── systemd-resolved  ← stub DNS at 127.0.0.53
-│   ├── Global config: /etc/systemd/resolved.conf.d/tailscale.conf
-│   │   └── DNS=100.100.100.100   (Tailscale's MagicDNS resolver)
-│   │   └── Domains=tail2527bd.ts.net ~ts.net
-│   │                              ↑ routing domain: bare ts.net queries
-│   │                                go ONLY here, never to upstream
-│   └── Per-link config (from NetworkManager / DHCP)
-│       └── eleves.polytechnique.fr (from X WiFi DHCP)
-│           ← danger zone: if this appears FIRST, kpihx-labs resolves wrong
-│
-├── Tailscale daemon (tailscaled)
-│   ├── Interface: tailscale0
-│   ├── MagicDNS resolver: 100.100.100.100
-│   └── Search domain: tail2527bd.ts.net
-│
-└── ~/.kshrc
-    └── SSH_AUTH_SOCK → ~/.bitwarden-ssh-agent.sock
-        ← Bitwarden Desktop manages SSH keys
-```
-
-**Why does X WiFi break MagicDNS?**
-
-`systemd-resolved` builds a search domain list. When X WiFi DHCP pushes `eleves.polytechnique.fr` as a `DefaultRoute=yes` domain, it can appear **before** `tail2527bd.ts.net` in the effective list.
-
-Then `kpihx-labs` → tries `kpihx-labs.eleves.polytechnique.fr` first → gets `129.104.201.11` (X catch-all) → resolves to the WRONG machine.
-
-**The fix:** anchor `100.100.100.100` at the **global** level, which always wins over per-link config in systemd-resolved's priority model.
-
----
-
-## 🔧 Setup
-
-### 1. Install Tailscale
+Every day I connect to my homelab server with one command:
 
 ```bash
-# Official one-liner (adds apt repo + GPG key)
-curl -fsSL https://tailscale.com/install.sh | sh
-
-# Start and authenticate
-sudo tailscale up
-
-# Verify connection + MagicDNS
-tailscale status
-tailscale ip -4
+ssh kpihx-labs
 ```
 
-Expected:
-```
-kpihx-labs  100.x.x.x  linux   active; ...
-```
+Configured once in `~/.ssh/config`, forgotten since. Clean, simple, instant.
+
+Then one evening it stopped working. Not "connection refused" — worse: it
+connected to *something*, but not my homelab. A wrong-host-key warning,
+a login prompt for a machine I didn't recognize. DNS was lying to me.
+
+That was my introduction to Tailscale.
 
 ---
 
-### 2. Fix MagicDNS Permanently (DNS Anchoring)
+## What Tailscale actually does
 
-Without this fix, MagicDNS breaks intermittently on any network that pushes its own DNS search domains (eduroam, X WiFi, corporate VPNs).
+Before the fix — let me explain what was broken, and why Tailscale is the right answer.
 
-**Create the override file:**
+My homelab sits behind NAT, on a private network I don't fully control. Opening a port and exposing SSH to the internet is not something I want to do. VPNs are an option, but traditional VPNs route *all* traffic through a server, which is slow and complicated to maintain.
+
+Tailscale is different. It builds a **WireGuard mesh** between your devices — each device talks directly to the others over encrypted tunnels, with no central server in the data path. Every machine gets a stable IP in the `100.x.x.x` range and a hostname resolvable via **MagicDNS** — Tailscale's built-in DNS resolver.
+
+```
+Without Tailscale:
+  KpihX-Ubuntu                          kpihx-labs (homelab)
+      │                                       │
+      │  ssh kpihx-labs → DNS lookup fails    │
+      │  or hits wrong host (NAT, firewall)   │
+      └───────────── ❌ ────────────────────►│
+
+With Tailscale:
+  KpihX-Ubuntu                          kpihx-labs (homelab)
+      │  tailscale0 (WireGuard tunnel)        │
+      └──── encrypted, direct, stable ──────►│
+            ssh kpihx-labs → MagicDNS
+            → Tailscale IP → tunnel ✅
+```
+
+The result: `ssh kpihx-labs` works from any network — home, campus WiFi,
+phone hotspot — with zero port forwarding, zero public exposure.
+
+---
+
+## Installing Tailscale
+
+The official install script handles everything — GPG key, apt repo, daemon:
+
+```bash
+curl -fsSL https://tailscale.com/install.sh | sh
+```
+
+Once installed, connect to your tailnet and authenticate:
+
+```bash
+sudo tailscale up
+```
+
+A URL appears in the terminal. Open it in a browser, log in with your
+Tailscale account, and authorize the machine. The daemon stays running
+after reboot — nothing else to configure.
+
+Verify both machines are visible to each other:
+
+```bash
+tailscale status
+```
+
+You should see `kpihx-labs` listed with status `active`. If it's there,
+`ssh kpihx-labs` now works from anywhere.
+
+---
+
+## The SSH config
+
+For `ssh kpihx-labs` to work cleanly, the hostname needs an entry in
+`~/.ssh/config`. Mine looks like this:
+
+```
+Host kpihx-labs
+    HostName kpihx-labs
+    User ivann
+    Port 2222
+    ServerAliveInterval 60
+    ServerAliveCountMax 5
+```
+
+`ServerAliveInterval` keeps the connection from dropping silently on idle
+links — important when SSH-ing over cellular or flaky WiFi.
+
+---
+
+## When MagicDNS breaks on campus WiFi
+
+For a few weeks, everything was perfect. Then I went back to campus.
+
+On the École Polytechnique network, `ssh kpihx-labs` started resolving to
+a wrong IP again — the same symptom as before Tailscale. But Tailscale was
+running, connected, and `kpihx-labs` was showing as `active`.
+
+The problem wasn't Tailscale. It was DNS ordering.
+
+Here's what happens under the hood. Ubuntu uses `systemd-resolved` as a
+stub DNS resolver. It builds a search domain list from two sources: your
+global config, and whatever the current WiFi's DHCP pushes. On X campus,
+the DHCP pushes `eleves.polytechnique.fr` as a `DefaultRoute=yes` domain —
+meaning it wants to be consulted first for everything.
+
+```
+What systemd-resolved sees on campus WiFi:
+
+  Global:   (nothing configured yet)
+  Per-link: eleves.polytechnique.fr  ← DefaultRoute=yes, goes FIRST
+            tail2527bd.ts.net        ← Tailscale, pushed second
+
+  Resolution of "kpihx-labs":
+    Try kpihx-labs.eleves.polytechnique.fr → campus DNS answers
+    → returns some campus IP (catch-all)    → WRONG ❌
+    (never reaches Tailscale's resolver)
+```
+
+The fix is to anchor Tailscale's DNS resolver at the **global** level —
+before any per-link config from DHCP. Global entries always win over
+per-link in systemd-resolved's priority model.
+
+---
+
+## The permanent DNS fix
+
+Create one config file:
 
 ```bash
 sudo mkdir -p /etc/systemd/resolved.conf.d
 sudo nano /etc/systemd/resolved.conf.d/tailscale.conf
 ```
-
-**Content:**
 
 ```ini
 [Resolve]
@@ -102,165 +148,162 @@ DNS=100.100.100.100
 Domains=tail2527bd.ts.net ~ts.net
 ```
 
-> **`~ts.net`** is a *routing domain* — any `*.ts.net` query goes **exclusively** to `100.100.100.100`, never to upstream resolvers. This is the key: no other DNS server will ever intercept Tailscale hostnames.
+Two things happening here:
 
-**Apply without reboot:**
+- `DNS=100.100.100.100` — Tailscale's MagicDNS resolver, set at global level.
+- `~ts.net` — a *routing domain*. The tilde prefix means: any `*.ts.net`
+  query goes **only** to `100.100.100.100`, never to any other resolver.
+  Campus DNS cannot intercept it.
+
+```
+After the fix:
+
+  Global:   DNS=100.100.100.100  Domains=tail2527bd.ts.net ~ts.net ← anchored
+  Per-link: eleves.polytechnique.fr  ← still pushed by DHCP, but lower priority
+
+  Resolution of "kpihx-labs":
+    Global routing domain ~ts.net matches → goes to 100.100.100.100
+    → Tailscale resolves → correct Tailscale IP → tunnel ✅
+```
+
+Apply and verify:
 
 ```bash
 sudo systemctl daemon-reload
 sudo systemctl restart systemd-resolved
+
+# Confirm global section shows Tailscale's resolver
+resolvectl status | grep -A8 "Global"
 ```
 
-**Verify:**
+This fix survives DHCP renews and WiFi reconnects — `/etc/systemd/resolved.conf.d/`
+has permanent priority over per-link config.
 
-```bash
-resolvectl status | grep -A5 "Global"
-# Should show:
-#   DNS Servers: 100.100.100.100
-#   DNS Domain:  tail2527bd.ts.net ~ts.net
-```
-
-This fix **survives** DHCP renews and WiFi reconnects because `/etc/systemd/resolved.conf.d/` (global config) always takes priority over per-link config injected by NetworkManager.
+> **`tail2527bd.ts.net`** is your Tailscale tailnet's search domain. Find
+> yours in the Tailscale admin panel, or run `tailscale status` — it appears
+> in the DNS section. It does not change unless you change your tailnet name.
 
 ---
 
-### 3. SSH Config for `kpihx-labs`
+## SSH keys and Bitwarden
 
-```bash
-nano ~/.ssh/config
-```
+With DNS fixed, `ssh kpihx-labs` resolves correctly and Tailscale routes
+the connection. But authentication still needs an SSH key.
 
-```sshconfig
-Host kpihx-labs
-    HostName kpihx-labs
-    # Alternative (FQDN — immune to any DNS interference):
-    # HostName kpihx-labs.tail2527bd.ts.net
-    User ivann
-    Port 2222
-    ServerAliveInterval 60
-    ServerAliveCountMax 5
-```
+I don't store SSH keys as files on disk. I use **Bitwarden Desktop** as my
+SSH agent — keys live in the vault, encrypted at rest, and Bitwarden
+exposes them through a local socket when unlocked.
 
-**FQDN alternative explained:**
-
-```
-kpihx-labs                      → resolved via search domain expansion
-                                   can hit X network catch-all intermittently
-
-kpihx-labs.tail2527bd.ts.net    → explicit FQDN, hits ~ts.net routing domain
-                                   goes ONLY to 100.100.100.100
-                                   IMMUNE to any other DNS resolver
-```
-
-Use the FQDN if bare hostname remains unreliable despite the DNS fix.
-
----
-
-### 4. Wire Bitwarden SSH Agent
-
-Bitwarden Desktop manages SSH keys — it acts as a hardware-backed SSH agent. The socket lives at `~/.bitwarden-ssh-agent.sock`.
-
-**Add to `~/.kshrc`** (universal shell hub, sourced by `.zshenv` and `.zprofile`):
+The socket path is `~/.bitwarden-ssh-agent.sock`. To wire it as the SSH
+agent for all shells, I add this to `~/.kshrc` (my universal shell hub,
+sourced by both Zsh and Bash):
 
 ```bash
 # Bitwarden SSH Agent
 export SSH_AUTH_SOCK="$HOME/.bitwarden-ssh-agent.sock"
 ```
 
-**Reload:**
+Reload and verify:
 
 ```bash
 source ~/.kshrc
-```
-
-**Verify agent is available:**
-
-```bash
-echo $SSH_AUTH_SOCK
-# → /home/kpihx/.bitwarden-ssh-agent.sock
-
-ls -l ~/.bitwarden-ssh-agent.sock
-# → srw------- (socket file, owned by kpihx)
-
 ssh-add -l
-# → Lists keys managed by Bitwarden Desktop
+# → Lists SSH keys currently loaded from Bitwarden
 ```
 
-> ⚠️ **Bitwarden Desktop must be running and unlocked.** First SSH auth (or git push) to a new host triggers a Bitwarden Desktop popup — you must approve it.
+When you first SSH to a new host — or push to GitHub for the first time —
+Bitwarden Desktop pops up a confirmation dialog. Approve it, and the
+connection proceeds. Subsequent connections to the same host are automatic
+until you lock the vault.
+
+> **Bitwarden Desktop must be running and unlocked** for the socket to exist.
+> If `ssh-add -l` returns "Could not open a connection to your authentication
+> agent", open Bitwarden Desktop and unlock it.
 
 ---
 
-## 🐛 Debugging
+## Going fully immune: the FQDN alternative
 
-### SSH resolves to wrong IP
+The DNS fix above solves the ordering problem. But there's a scenario where
+even that can fail: if you're running another VPN that overrides all routing,
+`systemd-resolved`'s config may be bypassed entirely.
+
+There's a simpler solution: use the **fully qualified domain name** instead
+of the bare hostname.
+
+```
+kpihx-labs                      → resolved via search domain expansion
+                                   can potentially be affected by routing
+
+kpihx-labs.tail2527bd.ts.net    → explicit FQDN, hits ~ts.net routing domain
+                                   goes only to 100.100.100.100, no expansion
+                                   immune to all other DNS resolvers
+```
+
+To use it, update `~/.ssh/config`:
+
+```
+Host kpihx-labs
+    # Bare hostname (works with the DNS fix above):
+    HostName kpihx-labs
+
+    # FQDN alternative (immune to all DNS interference):
+    # HostName kpihx-labs.tail2527bd.ts.net
+
+    User ivann
+    Port 2222
+    ServerAliveInterval 60
+    ServerAliveCountMax 5
+```
+
+I keep the bare hostname since the `resolved.conf.d` fix is stable enough.
+The FQDN is there commented as a fallback.
+
+---
+
+## Verification
 
 ```bash
-# Check what IP kpihx-labs resolves to
+# 1. Tailscale is connected and sees kpihx-labs
+tailscale status | grep kpihx-labs
+
+# 2. DNS resolves to a Tailscale IP (100.x.x.x range)
 resolvectl query kpihx-labs
-# Expected: your Tailscale IP (100.x.x.x range)
-# Wrong: any other IP — means a foreign DNS resolver answered first
 
-# Check effective DNS config
-resolvectl status
+# 3. SSH connects to the right machine
+ssh kpihx-labs "hostname && tailscale ip -4"
+# → kpihx-labs
+# → 100.x.x.x
 
-# Force Tailscale DNS and check routing domains
-resolvectl domain
-# Must show: ~ts.net (the routing domain)
-```
-
-### SSH auth fails / agent not found
-
-```bash
-# Check socket exists
-ls -l ~/.bitwarden-ssh-agent.sock
-
-# Check env var
-echo $SSH_AUTH_SOCK
-
-# Test auth
-ssh -T git@github.com
-# → Will trigger Bitwarden popup — approve it
-```
-
-### Tailscale IP not reachable
-
-```bash
-# Check Tailscale status
-tailscale status
-
-# Ping via Tailscale IP directly (bypasses DNS)
-ping $(tailscale ip -4 kpihx-labs 2>/dev/null || echo "100.x.x.x")
-
-# Check tailscale interface
-ip addr show tailscale0
+# 4. Fix survives WiFi reconnect (test after switching networks)
+resolvectl query kpihx-labs
+# → should still return the Tailscale IP, not a campus/ISP catch-all
 ```
 
 ---
 
-## ✅ Verification
+## 🐛 Quick fixes
 
-```bash
-# Full chain test:
-ssh kpihx-labs "hostname && ip addr show tailscale0 | grep inet"
+**`resolvectl query kpihx-labs` returns a non-Tailscale IP**
+→ `/etc/systemd/resolved.conf.d/tailscale.conf` is missing or not applied.
+Recreate it and run `sudo systemctl restart systemd-resolved`.
 
-# Expected:
-# kpihx-labs
-# inet 100.x.x.x/32 scope global tailscale0
-```
+**`ssh-add -l` says "Could not open a connection to your authentication agent"**
+→ Bitwarden Desktop is locked or not running. Unlock it, then retry.
 
-**Persistence test** — after reconnecting to X WiFi:
+**First SSH to a host hangs or fails**
+→ Bitwarden popup is waiting for your approval. Check the desktop — there's
+a dialog asking you to confirm the key use.
 
-```bash
-# Reconnect WiFi, then:
-resolvectl query kpihx-labs
-# Must still return your Tailscale IP (100.x.x.x) — not a foreign resolver's answer
-```
+**`tailscale status` shows `kpihx-labs` as offline**
+→ Tailscale is not running on the homelab side. SSH in via another method
+and run `sudo systemctl start tailscaled`.
 
 ---
 
 ## 📚 References
 
 - [Tailscale install docs](https://tailscale.com/kb/1031/install-linux)
-- [MagicDNS docs](https://tailscale.com/kb/1081/magicdns)
+- [MagicDNS](https://tailscale.com/kb/1081/magicdns)
 - [systemd-resolved routing domains](https://www.freedesktop.org/software/systemd/man/resolved.conf.html)
 - [Bitwarden SSH agent](https://bitwarden.com/help/ssh-agent/)

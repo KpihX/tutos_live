@@ -1,409 +1,239 @@
-# 🦊 GitLab CLI (`glab`) — Ubuntu 25.10 Field Guide
+# 🦊 GitLab CLI (`glab`) — GitLab Without the Browser
 
 > **Machine:** KpihX-Ubuntu (Ubuntu 25.10)
 > **Lived on:** 2026-03 · **Status:** Daily driver
 
 ---
 
-## 🧩 Context & Problem
+GitLab isn't just a GitHub mirror. The philosophy is different: CI/CD is
+native and tightly integrated, Merge Requests have structured approval flows,
+secrets have fine-grained protection (masked, protected branches only), and
+you can self-host the entire thing — which I do with my homelab.
 
-```
-Problem:  GitLab is not just a GitHub mirror — it has:
-          - Native CI/CD (GitLab Pipelines)
-          - Merge Requests (not PRs)
-          - Container Registry
-          - Environments & Deployments
+For a long time I was managing all of this through the web UI. It works, but
+GitLab's interface has a lot of layers to navigate — especially for pipeline
+status and variable management.
 
-Goal:     Control all of this from the terminal.
-          Mirroring the gh workflow, but for GitLab.
-```
+`glab` is the official GitLab CLI. Same idea as `gh` for GitHub: pull the
+most common workflows into the terminal, skip the browser for everything
+except code review comments.
 
-**`glab`** is the official GitLab CLI — maintained by GitLab Inc. It covers
-the full GitLab REST API and integrates tightly with Merge Requests, CI/CD,
-and the Container Registry.
+Here's how I set it up and what I use it for.
 
 ---
 
-## 🏗️ Architecture
+## Installing on Ubuntu 25.10
 
-```
-You (terminal)
-    │
-    ▼
-glab CLI  ──── REST API ────▶  gitlab.com (or self-hosted)
-    │                               │
-    │        SSH (git ops)          │
-    └──── git@gitlab.com ◀──────────┘
-              │
-         Your repos
-```
-
-`glab` supports both **gitlab.com** and **self-hosted GitLab** instances —
-you can configure multiple hosts simultaneously.
-
----
-
-## 🔧 Installation
-
-### Option A — Official apt repo (recommended)
+The cleanest option is GitLab's official apt repo:
 
 ```bash
-# 1. Add GitLab's apt repo
+# Add GitLab's apt repo (handles GPG key automatically)
 curl -fsSL https://packages.gitlab.com/install/repositories/gitlab/glab/script.deb.sh \
   | sudo bash
 
-# 2. Install
 sudo apt install glab -y
 
-# 3. Verify
 glab --version
-# → glab version 1.x.x (built xxxx-xx-xx)
+# → glab version 1.x.x
 ```
 
-### Option B — Direct binary
+Alternative — direct binary if you prefer not to add the repo:
 
 ```bash
-VERSION="1.53.0"
+VERSION="1.53.0"  # check latest at gitlab.com/gitlab-org/cli/-/releases
 curl -Lo /tmp/glab.tar.gz \
   "https://gitlab.com/gitlab-org/cli/-/releases/v${VERSION}/downloads/glab_${VERSION}_Linux_x86_64.tar.gz"
 tar -xzf /tmp/glab.tar.gz -C /tmp
 sudo install /tmp/bin/glab /usr/local/bin/glab
 ```
 
-### Option C — npm (quickest for testing)
-
-```bash
-npm install -g @gitlab/glab
-```
-
 ---
 
-## 🔐 Authentication
+## Authenticating
 
 ```bash
 glab auth login
 ```
-
-Interactive flow — recommended answers:
 
 ```
 ? What GitLab instance do you want to log into?   gitlab.com
 ? How would you like to authenticate?             Token
 ? Paste your authentication token:               [hidden]
 ? Choose default git protocol:                    SSH
-? Authenticate Git with your GitLab credentials?  Yes
 ```
 
-**Getting a token:** GitLab → User Settings → Access Tokens → New token
-- Scopes needed: `api`, `read_user`, `read_repository`, `write_repository`
+Get a token at GitLab → User Settings → Access Tokens → New token.
+Scopes you need: `api`, `read_user`, `read_repository`, `write_repository`.
 
-**Check auth status:**
+Check it worked:
 
 ```bash
 glab auth status
 # → ✓ Logged in to gitlab.com as kpihx
-#   ✓ Git operations for gitlab.com configured to use ssh protocol
+# → ✓ Git operations configured to use ssh protocol
 ```
 
-### Self-hosted GitLab
+If you also use a self-hosted GitLab instance (like I do with the homelab):
 
 ```bash
-glab auth login --hostname gitlab.my-company.com
+glab auth login --hostname gitlab.homelab.internal
 ```
 
-All commands then work against both instances — `glab` picks the right
-one based on the repo's remote URL.
+`glab` handles both simultaneously — it reads the git remote URL of the
+current directory and picks the right instance automatically.
 
 ---
 
-## 📦 Repositories
-
-### Create a repo
+## Repos
 
 ```bash
-# Public, from current directory
-glab repo create kpihx/my-project --public --description "My project"
+# Create a public repo from the current directory
+glab repo create kpihx/tutos_live --public --description "Ubuntu live tutorials"
 
-# Private
-glab repo create kpihx/my-project --private
-
-# Interactive
-glab repo create
-```
-
-### Clone a repo
-
-```bash
+# Clone
 glab repo clone kpihx/tutos_live
 
-# Clone someone else's repo
-glab repo clone gitlab-org/gitlab-runner
-```
-
-### Fork a repo
-
-```bash
-# Fork + clone
+# Fork + clone someone else's project
 glab repo fork gitlab-org/gitlab-runner --clone
 
-# Fork only
-glab repo fork gitlab-org/gitlab-runner
-```
-
-### List repos
-
-```bash
+# List your repos
 glab repo list
-glab repo list --member          # repos you're a member of
-glab repo list --starred         # your starred repos
-```
+glab repo list --member   # repos you're a member of
+glab repo list --starred
 
-### View repo
-
-```bash
-glab repo view kpihx/tutos_live
+# Open in browser when you need the full UI
 glab repo view kpihx/tutos_live --web
 ```
 
-### Archive / delete
-
-```bash
-glab repo archive kpihx/old-project
-glab repo delete kpihx/test-repo
-```
-
 ---
 
-## 🔀 Merge Requests (MRs)
+## Merge Requests
 
-GitLab calls them **Merge Requests** — same concept as GitHub PRs.
+GitLab calls them **Merge Requests** (MRs), not Pull Requests. Same concept,
+slightly different vocabulary and a richer approval model.
 
-```
-feature branch → MR → review → approve → merge
-      │                                     │
-   git push                           glab mr merge
-```
-
-### Create an MR
+The day-to-day flow for my own projects:
 
 ```bash
-# Interactive (reads branch, suggests title from commits)
-glab mr create
-
-# One-liner
+# I just pushed a feature branch. Open an MR from it:
 glab mr create \
   --title "feat: add tailscale tutorial" \
   --description "Covers MagicDNS fix, SSH, Bitwarden SSH agent" \
-  --target-branch main \
-  --source-branch feat/tailscale
+  --target-branch main
 
-# Draft MR
+# Draft (not ready for review yet)
 glab mr create --draft --title "WIP: new tutorial"
 
-# Push + create MR in one shot
+# Push the current branch AND open the MR in one shot
 glab mr create --push
 ```
 
-### List MRs
+Managing MRs I received for review:
 
 ```bash
-glab mr list                         # open MRs
+# What's open
+glab mr list
 glab mr list --state closed
-glab mr list --author kpihx
-glab mr list --label "bug"
-glab mr list --reviewer kpihx        # MRs assigned to you for review
-```
+glab mr list --reviewer kpihx   # MRs assigned to me for review
 
-### View an MR
-
-```bash
+# Read it
 glab mr view 42
 glab mr view 42 --web
-```
 
-### Approve / reject
+# Checkout the branch to test locally
+glab mr checkout 42
 
-```bash
 # Approve
 glab mr approve 42
 
-# Revoke approval
-glab mr revoke 42
-```
+# Add a note
+glab mr note 42 --message "LGTM — one nit on line 42"
 
-### Review — add a note
-
-```bash
-glab mr note 42 --message "LGTM! Minor nit on line 42"
-```
-
-### Checkout an MR branch locally
-
-```bash
-# Fetches the source branch and checks it out
-glab mr checkout 42
-```
-
-### Merge an MR
-
-```bash
-# Standard merge
-glab mr merge 42
-
-# Squash
-glab mr merge 42 --squash-before-merge
-
-# Rebase
-glab mr merge 42 --rebase-before-merge
-
-# Remove source branch after merge
-glab mr merge 42 --remove-source-branch
-
-# All in one
+# Merge (squash + delete source branch)
 glab mr merge 42 --squash-before-merge --remove-source-branch
 ```
 
-### Close / reopen
-
-```bash
-glab mr close 42
-glab mr reopen 42
-```
-
 ---
 
-## 🐛 Issues
-
-### Create an issue
+## Issues
 
 ```bash
-# Interactive
-glab issue create
-
-# One-liner
 glab issue create \
   --title "MagicDNS breaks on X WiFi" \
-  --description "Resolved by anchoring 100.100.100.100 in resolved.conf.d" \
+  --description "Root cause: search domain ordering in systemd-resolved" \
   --label "bug" \
-  --assignee kpihx \
-  --milestone "v1.0"
-```
+  --assignee kpihx
 
-### List issues
-
-```bash
 glab issue list
 glab issue list --label "bug"
 glab issue list --assignee kpihx
-glab issue list --milestone "v1.0"
-glab issue list --state closed
-```
 
-### View / comment
-
-```bash
-glab issue view 7
 glab issue note 7 --message "Fixed in MR !42"
-```
-
-### Close / reopen
-
-```bash
-glab issue close 7
 glab issue close 7 --message "Fixed in MR !42"
-glab issue reopen 7
 ```
 
 ---
 
-## ⚡ CI/CD Pipelines
+## CI/CD pipelines — where GitLab shines
 
-This is where GitLab shines — CI is native, not a bolt-on.
+This is where `glab` earns its place. GitLab CI is native — every push can
+trigger a pipeline defined in `.gitlab-ci.yml`. Managing pipelines from
+the browser means a lot of clicking. `glab` makes it fast.
 
-```
-git push → .gitlab-ci.yml triggers → pipeline
-               │
-         ┌─────┴──────┐
-       build         test
-         │             │
-         └─────┬───────┘
-             deploy
-```
-
-### View pipelines
+A typical day: I push a change, something fails, I diagnose and fix from the terminal.
 
 ```bash
-# List pipelines for current branch
+# What ran recently
 glab pipeline list
-
-# List for a specific branch
 glab pipeline list --branch main
 
-# View a specific pipeline
-glab pipeline view 123456
-
-# Open in browser
-glab pipeline view 123456 --web
-```
-
-### Watch a pipeline live
-
-```bash
-# Streams status until completion
+# Watch the current branch's pipeline live
 glab pipeline ci view
 ```
 
+The `ci view` output streams pipeline status in real time:
+
 ```
 Pipeline #123456 — running
-  ✔ build:linux          1m23s
-  ⚙ test:unit            running...
-  ✔ test:lint            42s
-  ⏸ deploy:staging       pending
+  ✔ build:docker       1m12s
+  ⚙ test:unit          running...
+  ✔ lint               38s
+  ⏸ deploy:staging     pending (waiting for test:unit)
 ```
 
-### Trigger a pipeline
+When a job fails:
+
+```bash
+# See which jobs failed
+glab pipeline jobs 123456
+
+# Stream the logs of the failing job
+glab job log 789012
+
+# Retry just that job (not the whole pipeline)
+glab job retry 789012
+
+# Or retry the whole pipeline
+glab pipeline retry 123456
+```
+
+Triggering pipelines manually:
 
 ```bash
 # On current branch
 glab pipeline run
 
-# On a specific branch with variables
+# On a specific branch, with CI variables
 glab pipeline run \
   --branch main \
   --variables "DEPLOY_ENV=staging,VERSION=1.2.0"
 ```
 
-### Re-run / cancel
+Downloading artifacts (build outputs, test reports):
 
 ```bash
-glab pipeline retry 123456    # retry all failed jobs
-glab pipeline cancel 123456   # cancel a running pipeline
-```
-
-### View individual job logs
-
-```bash
-# List jobs in a pipeline
-glab pipeline jobs 123456
-
-# Stream logs of a specific job
-glab job log 789012
-
-# Retry a single job
-glab job retry 789012
-
-# Cancel a single job
-glab job cancel 789012
-```
-
-### Download artifacts
-
-```bash
-# Download artifacts from the latest pipeline on current branch
+# Latest pipeline on current branch
 glab pipeline artifact
-
-# From a specific branch
-glab pipeline artifact --branch main
 
 # From a specific job
 glab job artifact 789012
@@ -411,9 +241,60 @@ glab job artifact 789012
 
 ---
 
-## 🚀 Releases
+## Variables and secrets
 
-### Create a release
+GitLab CI variables are the equivalent of GitHub Actions secrets. `glab`
+handles them well, with fine-grained control over masking and protection.
+
+```bash
+# Set a variable (prompts for value, hidden input)
+glab variable set MY_API_KEY
+
+# Masked (hidden in job logs) AND protected (only available on protected branches)
+glab variable set MY_API_KEY --masked --protected
+
+# List variables — names and metadata, never values
+glab variable list
+
+# Delete
+glab variable delete MY_API_KEY
+```
+
+```
+Variable protection levels:
+  ┌─────────────┬─────────────────────────────────────────┐
+  │  (none)     │  Available in all pipelines             │
+  │  masked     │  Hidden in logs, but any branch         │
+  │  protected  │  Only on protected branches (e.g. main) │
+  │  both       │  Hidden in logs + only on main ← ideal  │
+  └─────────────┴─────────────────────────────────────────┘
+```
+
+---
+
+## Raw API access
+
+Like `gh api` for GitHub, `glab api` gives access to the full GitLab REST API.
+
+```bash
+# Get project info
+glab api projects/kpihx%2Ftutos_live
+
+# Update project description
+glab api projects/kpihx%2Ftutos_live \
+  --method PUT \
+  -f description="Ubuntu live tutorials"
+
+# List project members
+glab api projects/kpihx%2Ftutos_live/members
+```
+
+> **URL encoding:** GitLab API uses `owner%2Frepo` (slash encoded as `%2F`)
+> in project path parameters. `kpihx/tutos_live` becomes `kpihx%2Ftutos_live`.
+
+---
+
+## Releases
 
 ```bash
 glab release create v1.0.0 \
@@ -425,164 +306,63 @@ glab release create v1.0.0 \
   --name "v1.0.0" \
   --milestone "v1.0"
 
-# Upload assets
+# Upload assets to an existing release
 glab release upload v1.0.0 dist/myapp-linux-amd64
-```
 
-### List / view
-
-```bash
 glab release list
 glab release view v1.0.0
-```
-
-### Download
-
-```bash
 glab release download v1.0.0
 ```
 
-### Delete
-
-```bash
-glab release delete v1.0.0
-```
-
 ---
 
-## ⚙️ Variables & Secrets
+## Working with multiple GitLab instances
 
-CI/CD variables (equivalent to GitHub secrets for pipelines):
-
-```bash
-# Set a variable (prompts for value, hidden)
-glab variable set MY_API_KEY
-
-# Set with value inline (careful: shell history)
-glab variable set MY_API_KEY --value "abc123"
-
-# Set as file variable (for certs, keys)
-glab variable set MY_CERT < mycert.pem
-
-# Masked (hidden in logs) + protected (only on protected branches)
-glab variable set MY_API_KEY \
-  --masked --protected
-
-# List variables (names + metadata, never values)
-glab variable list
-
-# Delete a variable
-glab variable delete MY_API_KEY
-```
-
----
-
-## 🔧 Raw API Access
-
-Same as `gh api` — full access to GitLab REST API:
+I have both gitlab.com and a self-hosted instance. `glab` handles this
+transparently — it reads the git remote of the current directory:
 
 ```bash
-# Get project info
-glab api projects/kpihx%2Ftutos_live
-
-# Enable Pages (if you have a Pages-capable GitLab instance)
-glab api projects/kpihx%2Ftutos_live/pages \
-  --method POST
-
-# List project members
-glab api projects/kpihx%2Ftutos_live/members
-
-# Update project settings
-glab api projects/kpihx%2Ftutos_live \
-  --method PUT \
-  -f description="Ubuntu field notes"
-```
-
-> **URL encoding:** GitLab API uses `owner%2Frepo` (slash encoded as `%2F`)
-> for project paths in URLs.
-
----
-
-## 🛠️ Useful Shortcuts
-
-```bash
-# Open current repo in browser
-glab repo view --web
-
-# Open current MR in browser
-glab mr view --web
-
-# List labels for current repo
-glab label list
-
-# Create a label
-glab label create "docs" --color "#0075ca" --description "Documentation changes"
-
-# List milestones
-glab milestone list
-
-# Create a milestone
-glab milestone create --title "v1.0" --description "First stable release"
-```
-
----
-
-## 🔄 Multi-host Workflow
-
-If you have both `gitlab.com` and a self-hosted instance:
-
-```bash
-# Login to self-hosted
-glab auth login --hostname gitlab.company.com
-
-# Status for both
 glab auth status
+# → ✓ Logged in to gitlab.com as kpihx
+# → ✓ Logged in to gitlab.homelab.internal as ivann
 
-# glab auto-detects which host to use from git remote
-cd ~/Work/company-project
-glab mr list   # → hits gitlab.company.com
-
-cd ~/Work/tutos_live
+# In a repo with git@gitlab.com:... remote
 glab mr list   # → hits gitlab.com
+
+# In a repo with git@gitlab.homelab.internal:... remote
+glab mr list   # → hits self-hosted automatically
 ```
 
 ---
 
-## 🐛 Debugging
+## 🐛 Quick fixes
 
-### Auth fails / token expired
-
+**Auth fails or token expired**
 ```bash
 glab auth login --hostname gitlab.com
-# → re-authenticate, overwrites stored token
 ```
 
-### Wrong remote detected
-
+**Wrong instance being used**
 ```bash
-# Check what remote glab is using
+# Check what remote glab detected
 glab repo view
 
-# Override host
-GITLAB_HOST=gitlab.company.com glab mr list
+# Override with env var
+GITLAB_HOST=gitlab.homelab.internal glab mr list
 ```
 
-### API rate limit
-
-```bash
-# GitLab rate limit info is in response headers — use verbose mode
-glab api projects/kpihx%2Ftutos_live --verbose 2>&1 | grep -i rate
-```
+**Pipeline won't trigger**
+Make sure `.gitlab-ci.yml` is at repo root and the branch has CI enabled
+in project settings (Settings → CI/CD → General pipelines).
 
 ---
 
-## ✅ Verification
+## ✅ Quick health check
 
 ```bash
-# Full health check
 glab auth status
 glab repo list --limit 5
-glab api user | python3 -c "import sys,json; u=json.load(sys.stdin); print(u['username'], u['name'])"
+glab api user | python3 -c "import sys,json; u=json.load(sys.stdin); print(u['username'], '-', u['name'])"
 ```
 
 ---
@@ -592,3 +372,4 @@ glab api user | python3 -c "import sys,json; u=json.load(sys.stdin); print(u['us
 - [glab documentation](https://gitlab.com/gitlab-org/cli/-/blob/main/docs/source/index.md)
 - [GitLab REST API](https://docs.gitlab.com/ee/api/rest/)
 - [glab releases](https://gitlab.com/gitlab-org/cli/-/releases)
+- [GitHub CLI (`gh`) guide](gh.md)

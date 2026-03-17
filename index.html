@@ -47,10 +47,24 @@
       color: var(--textColor) !important;
       border-radius: 3px !important;
     }
+
+    /* --- INLINE CODE READABILITY FIX ---
+       Override docsify-darklight-theme's codeTypeColor (#007acc blue in light,
+       applied to inline <code> tags) which is hard to read on both themes.
+       We force inline code to use the same readable color as block code text,
+       with an explicit background so it's never invisible on a matching bg. */
+    p code, li code, td code, blockquote code,
+    h1 code, h2 code, h3 code, h4 code {
+      background-color: var(--codeBackgroundColor) !important;
+      color: var(--codeTextColor) !important;
+      padding: 2px 6px !important;
+      border-radius: 3px !important;
+      font-size: 0.875em !important;
+    }
   </style>
 </head>
 <body>
-  <div id="app">Loading KpihX Ubuntu Field Notes...</div>
+  <div id="app">Loading KpihX Ubuntu Live Tutorials...</div>
   <script>
     window.$docsify = {
       name: '🐧 KpihX Ubuntu Live',
@@ -79,13 +93,13 @@
           background: '#1e1e1e',
           sidebarBackground: '#252526',
           textColor: '#d4d4d4',
-          codeTextColor: '#dcdcaa',
-          codeBackgroundColor: '#3c3c3c',
+          codeTextColor: '#ce9178',       /* VS Code string orange — readable on dark */
+          codeBackgroundColor: '#2d2d2d', /* slightly lighter than bg for contrast */
           borderColor: '#333333',
           blockQuoteColor: '#6a9955',
           highlightColor: '#264f78',
           sidebarSubColor: '#cccccc',
-          codeTypeColor: '#4ec9b0',
+          codeTypeColor: '#ce9178',       /* same as codeTextColor to avoid blue override */
           toogleImage: 'url(https://cdn.jsdelivr.net/npm/docsify-darklight-theme@latest/icons/sun.svg)'
         },
         light: {
@@ -93,13 +107,13 @@
           background: '#ffffff',
           sidebarBackground: '#f3f3f3',
           textColor: '#333333',
-          codeTextColor: '#000000',
-          codeBackgroundColor: '#ffffff',
+          codeTextColor: '#c7254e',       /* GitHub-style dark red — readable on light bg */
+          codeBackgroundColor: '#f0f0f0', /* light gray — visible contrast on white page */
           borderColor: 'rgba(0,0,0,.1)',
           blockQuoteColor: '#858585',
           highlightColor: '#e7f3ff',
           sidebarSubColor: '#666666',
-          codeTypeColor: '#007acc',
+          codeTypeColor: '#c7254e',       /* same as codeTextColor to avoid blue override */
           toogleImage: 'url(https://cdn.jsdelivr.net/npm/docsify-darklight-theme@latest/icons/moon.svg)'
         }
       }
