@@ -219,15 +219,31 @@ sudo tailscale up
 
 ```
 tutos_live/
-├── index.html       ← Docsify entry (GitHub Pages)
-├── _sidebar.md      ← Docsify navigation
-├── README.md        ← Site homepage
+├── index.html          ← Docsify entry (GitHub Pages)
+├── _sidebar.md         ← Docsify navigation
+├── .nojekyll           ← Disables Jekyll (required for _sidebar.md)
+├── README.md           ← Site homepage
 ├── CHANGELOG.md
 ├── TODO.md
-├── tailscale.md     ← Tailscale MagicDNS + SSH
-├── github-pages.md  ← Docsify + GitHub Pages setup
-└── .agent/AGENT.md  ← this file (symlinked as CLAUDE.md, GEMINI.md, AGENTS.md)
+├── tools.md            ← Formal living tools inventory
+├── assets/             ← Embedded images (screenshots, diagrams)
+├── templates/          ← Reusable config/boilerplate templates
+├── sh/                 ← Native shell command tutorials (awk, sed, grep, regex…)
+│   │                      STRICT RULE: sh/ contains ONLY tutorials about Unix/shell
+│   │                      built-ins and native commands. NOT tool installs, NOT apps.
+│   │                      Source: ~/Work/sh/tutos/ (same files, copied here)
+│   ├── awk_tutorial.md
+│   ├── sed_tutorial.md
+│   ├── regex_tutorial.md
+│   └── …
+├── tailscale.md        ← Tool/app tutorials live at ROOT level, not in sh/
+├── waveterm.md         ← (root level — WaveTerm is an app, not a native command)
+└── .agent/AGENT.md     ← this file (symlinked as CLAUDE.md, GEMINI.md, AGENTS.md)
 ```
+
+**Directory placement rule (mandatory):** [CLAUDE]
+- `sh/` ← native Unix/shell commands and built-ins ONLY (awk, sed, grep, tail, ps, kill, xargs, tee, globbing, regex…)
+- Root level ← tutorials about installed tools, apps, CLIs, and services (Tailscale, WaveTerm, gh, glab, bw-env, npm…)
 
 ---
 

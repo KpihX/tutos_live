@@ -1,0 +1,73 @@
+// WaveTerm BYOK AI Modes — paste content into Wave Config → Wave AI Modes
+// Set API keys via: wsh secret set GROQ_API_KEY=<value>
+//                   wsh secret set MISTRAL_API_KEY=<value>
+// The "ai:apitokensecretname" references the wsh secret name (not the value directly)
+// Reference: https://docs.waveterm.dev/reference/ai-modes
+{
+  "groq-scout": {
+    "display:name": "Groq Llama 4 Scout",
+    "display:order": 1,
+    "display:icon": "zap",
+    "display:description": "Groq Ultra-Fast Agent Model",
+    "ai:apitype": "openai-chat",
+    "ai:model": "meta-llama/llama-4-scout-17b-16e-instruct",
+    "ai:endpoint": "https://api.groq.com/openai/v1/chat/completions",
+    "ai:apitokensecretname": "GROQ_API_KEY",
+    "ai:capabilities": ["tools", "images"]
+  },
+  "groq-120b": {
+    "display:name": "Groq GPT OSS 120B",
+    "display:order": 2,
+    "display:icon": "brain",
+    "display:description": "Groq Reasoning Powerhouse",
+    "ai:apitype": "openai-chat",
+    "ai:model": "openai/gpt-oss-120b",
+    "ai:endpoint": "https://api.groq.com/openai/v1/chat/completions",
+    "ai:apitokensecretname": "GROQ_API_KEY",
+    "ai:capabilities": ["tools"]
+  },
+  "groq-maverick": {
+    "display:name": "Groq Llama 4 Maverick",
+    "display:order": 3,
+    "display:icon": "eye",
+    "display:description": "Groq High-End Vision",
+    "ai:apitype": "openai-chat",
+    "ai:model": "meta-llama/llama-4-maverick-17b-128e-instruct",
+    "ai:endpoint": "https://api.groq.com/openai/v1/chat/completions",
+    "ai:apitokensecretname": "GROQ_API_KEY",
+    "ai:capabilities": ["tools", "images"]
+  },
+  "mistral-large": {
+    "display:name": "Mistral Large",
+    "display:order": 4,
+    "display:icon": "shield",
+    "display:description": "Most intelligent Mistral model",
+    "ai:apitype": "openai-chat",
+    "ai:model": "mistral-large-latest",
+    "ai:endpoint": "https://api.mistral.ai/v1/chat/completions",
+    "ai:apitokensecretname": "MISTRAL_API_KEY",
+    "ai:capabilities": ["tools"]
+  },
+  "codestral": {
+    "display:name": "Codestral",
+    "display:order": 5,
+    "display:icon": "code",
+    "display:description": "Mistral code specialist — Python and 80+ languages",
+    "ai:apitype": "openai-chat",
+    "ai:model": "codestral-latest",
+    "ai:endpoint": "https://api.mistral.ai/v1/chat/completions",
+    "ai:apitokensecretname": "MISTRAL_API_KEY",
+    "ai:capabilities": ["tools"]
+  },
+  "pixtral": {
+    "display:name": "Pixtral",
+    "display:order": 6,
+    "display:icon": "camera",
+    "display:description": "Mistral native vision — images and documents",
+    "ai:apitype": "openai-chat",
+    "ai:model": "pixtral-12b-latest",
+    "ai:endpoint": "https://api.mistral.ai/v1/chat/completions",
+    "ai:apitokensecretname": "MISTRAL_API_KEY",
+    "ai:capabilities": ["images", "tools"]
+  }
+}

@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.6.0] — 2026-03-17
+
+### Added
+- [x] `waveterm.md` — full WaveTerm guide: block paradigm, sidebar widgets, SSH, BYOK AI modes (Groq, Mistral), wsh secrets + embedded screenshots
+- [x] `assets/` — images subfolder; `waveterm-connections.png`, `waveterm-secrets.png` (cropped via ffmpeg)
+- [x] `sh/` — native shell command tutorials (from `~/Work/sh/tutos/`): awk, sed, grep/regex, tail, ps, kill, xargs, tee, globbing
+- [x] `templates/waveterm-widgets.json` — sidebar widgets template (AI CLIs + web shortcuts)
+- [x] `templates/waveterm-ai-modes.json` — BYOK AI Modes (Groq, Mistral)
+- [x] `templates/_sidebar.md` — generic Docsify sidebar template
+
+### Changed
+- [x] `tools.md` updated: new `## 🖥️ Terminals` section (WaveTerm + Warp), Docsify `_sidebar.md` template added
+- [x] `_sidebar.md` updated: WaveTerm entry + new `🐚 Shell Commands` section with all 9 tutorials
+- [x] `README.md` updated: WaveTerm row + new `🐚 Shell Commands` table
+- [x] `templates/README.md` updated: 3 new template rows
+- [x] `.agent/AGENT.md` updated: `sh/` placement rule + updated structure diagram [CLAUDE]
+
 ## [0.5.0] — 2026-03-17
 
 ### Added

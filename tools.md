@@ -158,6 +158,7 @@ npx docsify-cli serve .
 
 **Templates:**
 - [`github-pages-index.html`](templates/github-pages-index.html) — ready-to-use `index.html`: VS Code dark theme, search, sidebar, inline code color fix. Copy to repo root, rename to `index.html`, replace the 4 `SITE_*` placeholders.
+- [`_sidebar.md`](templates/_sidebar.md) — generic Docsify sidebar with `.nojekyll` reminder. Copy to repo root as `_sidebar.md`.
 
 ---
 
@@ -209,6 +210,40 @@ Wire the SSH agent in `~/.kshrc`:
 
 ```bash
 export SSH_AUTH_SOCK="$HOME/.bitwarden-ssh-agent.sock"
+```
+
+---
+
+## 🖥️ Terminals
+
+### WaveTerm
+
+A modern GPU-accelerated terminal with a block-based layout — each command,
+SSH session, or web view lives in its own independently scrollable block.
+Sidebar widgets launch AI CLIs (claude, codex, gemini) or open URLs in one
+click. BYOK AI chat built in via Groq, Mistral, or any OpenAI-compatible API.
+
+Download the `.deb` from [waveterm.dev](https://waveterm.dev):
+
+```bash
+sudo dpkg -i waveterm_*.deb
+```
+
+→ **Full guide:** [waveterm.md](waveterm.md) — sidebar widgets, SSH connections, BYOK AI modes (Groq, Mistral), wsh secrets.
+
+**Templates:**
+- [`waveterm-widgets.json`](templates/waveterm-widgets.json) — AI CLI sidebar widgets (claude, codex, gemini, copilot, vibe) + GitHub/GitLab web shortcuts. Copy to `~/.config/waveterm/widgets.json`, fill `BINARY_PATH_*` and `SESSION_ID_*`.
+- [`waveterm-ai-modes.json`](templates/waveterm-ai-modes.json) — BYOK AI Modes (Groq Scout, Groq Maverick, Mistral Large, Codestral, Pixtral). Set secrets via `wsh secret set`, paste into Wave Config → Wave AI Modes.
+
+### Warp
+
+AI-first terminal for Ubuntu — built-in AI command suggestions, natural-language
+command generation (`Ctrl+I`), and collaborative Warp Drive for sharing runbooks.
+
+Download the `.deb` from [warp.dev](https://warp.dev):
+
+```bash
+sudo dpkg -i warp-terminal_*.deb
 ```
 
 ---

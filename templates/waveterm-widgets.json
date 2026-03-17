@@ -1,0 +1,95 @@
+// WaveTerm Sidebar Widgets — ~/.config/waveterm/widgets.json
+// Copy this file to ~/.config/waveterm/widgets.json
+// Replace all BINARY_PATH_* with absolute paths to your binaries (use: which <tool>)
+// Replace SESSION_ID_CODEX with your Codex session ID (find it in ~/.codex/)
+// Colors: any hex code. Icons: see Wave icon picker (gear → Sidebar Widgets)
+// Reference: https://docs.waveterm.dev/reference/widgets
+{
+  "claude": {
+    "icon": "sparkles",
+    "label": "claude",
+    "color": "#D97757",
+    "blockdef": {
+      "meta": {
+        "view": "term",
+        "controller": "cmd",
+        "cmd": "BINARY_PATH_CLAUDE --continue",
+        "cwd": "~"
+      }
+    }
+  },
+  "codex": {
+    "icon": "sparkles",
+    "label": "codex",
+    "color": "#10A37F",
+    "blockdef": {
+      "meta": {
+        "view": "term",
+        "controller": "cmd",
+        "cmd": "BINARY_PATH_CODEX resume SESSION_ID_CODEX",
+        "cwd": "~"
+      }
+    }
+  },
+  "gemini": {
+    "icon": "sparkles",
+    "label": "gemini",
+    "color": "#4285F4",
+    "blockdef": {
+      "meta": {
+        "view": "term",
+        "controller": "cmd",
+        "cmd": "BINARY_PATH_GEMINI --resume 1",
+        "cwd": "~"
+      }
+    }
+  },
+  "copilot": {
+    "icon": "sparkles",
+    "label": "copilot",
+    "color": "#6e5ee6",
+    "blockdef": {
+      "meta": {
+        "view": "term",
+        "controller": "cmd",
+        "cmd": "BINARY_PATH_COPILOT --resume 1",
+        "cwd": "~"
+      }
+    }
+  },
+  "vibe": {
+    "icon": "sparkles",
+    "label": "vibe",
+    "color": "#FD6F00",
+    "blockdef": {
+      "meta": {
+        "view": "term",
+        "controller": "cmd",
+        "cmd": "BINARY_PATH_VIBE --resume 1",
+        "cwd": "~"
+      }
+    }
+  },
+  "github": {
+    "icon": "brands@github",
+    "label": "github",
+    "blockdef": {
+      "meta": {
+        "view": "web",
+        "url": "https://github.com",
+        "pinnedurl": "https://github.com"
+      }
+    }
+  },
+  "gitlab": {
+    "icon": "brands@gitlab",
+    "label": "gitlab",
+    "blockdef": {
+      "meta": {
+        "view": "web",
+        "url": "https://gitlab.com",
+        "pinnedurl": "https://gitlab.com"
+      }
+    }
+  }
+}
