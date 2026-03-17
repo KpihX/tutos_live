@@ -6,6 +6,12 @@ No theory, no made-up examples. Everything here was lived on my machine and docu
 
 ---
 
+## 🧰 Reference
+
+| Page | Content |
+|------|---------|
+| [🧰 Tools & Apps](tools.md) | All installed tools — brief description + install command or tutorial link |
+
 ## 📚 Tutorials
 
 | Tutorial | Topic |

@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.3.0] — 2026-03-17
+
+### Added
+- [x] `tools.md` — living inventory of KpihX Ubuntu tools (micro, plocate, Tailscale, uv, gh, glab, Docsify, Bitwarden, Zsh)
+
+### Changed
+- [x] All tutorials rewritten in narrative / intuition-formalism mode
+- [x] `index.html` inline code color fix (light: `#c7254e` on `#f0f0f0`, dark: `#ce9178` on `#2d2d2d`)
+- [x] `.agent/AGENT.md` style guide: narrative approach + `tools.md` maintenance rules
+
 ## [0.2.0] — 2026-03-17
 
 ### Added

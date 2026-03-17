@@ -134,6 +134,51 @@ Every agent adding or editing a `.md` tutorial MUST follow:
 
 6. **No build step.** Pure Markdown + Docsify. No Node, no bundler.
 
+### `tools.md` Maintenance Guide
+
+`tools.md` is the **living tools inventory** — a structured reference page, not a tutorial.
+It is the **one exception to the narrative style rule**: it uses formal, rigid structure.
+
+**Entry format (mandatory for every tool):**
+
+```markdown
+### ToolName
+
+One or two sentences: what concrete problem this tool solves. Not a feature list —
+the user's perspective ("replaces X", "avoids Y", "makes Z possible").
+
+[install block or reference]
+```
+
+**Inline install** — use when the install is ≤ 3 commands and needs no explanation:
+
+```markdown
+```bash
+sudo apt install micro
+```
+```
+
+**Reference to `.md`** — use when the setup is complex or a full tutorial exists.
+Still include the minimal install command inline so the reader sees the entry point:
+
+```markdown
+```bash
+curl -fsSL https://tailscale.com/install.sh | sh
+sudo tailscale up
+```
+
+→ **Full guide:** [tailscale.md](tailscale.md) — MagicDNS fix, SSH config, ...
+```
+
+**When to create a new `.md` vs stay inline:**
+- ≤ 3 commands, no significant caveats → **inline in `tools.md`**
+- Multi-step setup, config files, gotchas, or debugging needed → **new `.md`** with narrative approach, link from `tools.md`
+
+**After adding a tool to `tools.md`:**
+1. No need to update `_sidebar.md` or `README.md` — `tools.md` is already linked.
+2. `git add tools.md && git commit -m "docs(tools): add <toolname>"  && git push github HEAD && git push gitlab HEAD`
+3. If a new dedicated `.md` was also created → follow the full post-tutorial checklist (rule 5 above).
+
 ### Structure
 
 ```

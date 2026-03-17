@@ -1,7 +1,10 @@
 - **🐧 KpihX Ubuntu**
 
-- **Tutorials**
+- **Reference**
   - [🏠 Home](README.md)
+  - [🧰 Tools & Apps](tools.md)
+
+- **Tutorials**
   - [🔒 Tailscale](tailscale.md)
   - [🌐 GitHub Pages + Docsify](github-pages.md)
   - [🐙 GitHub CLI (gh)](gh.md)
