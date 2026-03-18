@@ -100,6 +100,48 @@ nvm alias default 22
 
 → **Full guide:** [npm-prefix.md](npm-prefix.md) — nvm setup, `.nvmrc` auto-switch hook, the system npm EACCES trap, and the `~/.npm-global` fix for daily-driver CLI tools that auto-update.
 
+**⚠️ Gotcha — `.npmrc` prefix vs `.kshrc` universal hub:**
+
+If you use a `prefix=~/.npm-global` line in `~/.npmrc` **and** source nvm from a
+universal shell hub (`.kshrc`), nvm will warn on every shell start:
+
+```
+Your .npmrc has a prefix setting which is incompatible with nvm.
+Run `nvm use --delete-prefix` to unset it.
+```
+
+The fix — **never put `prefix` in `.npmrc`**. Use an env var instead, and guard
+nvm loading to prevent double-sourcing:
+
+```bash
+# In ~/.kshrc — BEFORE the interactive guard:
+
+# Idempotency guard — prevents double-sourcing when shell configs chain
+if [ -z "$NVM_LOADED" ]; then
+    export NVM_DIR="$HOME/.nvm"
+    [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+    nvm use default --silent 2>/dev/null
+    export NVM_LOADED=1
+fi
+
+# Env var instead of .npmrc prefix key → nvm never sees it, no conflict
+export NPM_CONFIG_PREFIX="$HOME/.npm-global"
+export PATH="$HOME/.npm-global/bin:$PATH"
+```
+
+```bash
+# In ~/.npmrc — remove the prefix line, replace with a comment:
+# npm global prefix managed via NPM_CONFIG_PREFIX in ~/.kshrc
+```
+
+Root cause: nvm reads `~/.npmrc` at startup and complains about `prefix`. It does
+**not** read `NPM_CONFIG_PREFIX`. Same effect, zero conflict.
+
+Also: if `.kshrc` has a `case $- in *i*) ;; *) return ;; esac` guard near the
+top (leftover from `.bashrc` boilerplate), it will silently exit before setting
+any exports in non-interactive shells — breaking MCPs, scripts, and `zsh -l -c`.
+Move that guard to **after** all `export` statements.
+
 ---
 
 ## 🐍 Python
@@ -178,6 +220,25 @@ npx docsify-cli serve .
 **Templates:**
 - [`github-pages-index.html`](templates/github-pages-index.html) — ready-to-use `index.html`: VS Code dark theme, search, sidebar, inline code color fix. Copy to repo root, rename to `index.html`, replace the 4 `SITE_*` placeholders.
 - [`_sidebar.md`](templates/_sidebar.md) — generic Docsify sidebar with `.nojekyll` reminder. Copy to repo root as `_sidebar.md`.
+
+### grip — GitHub-flavored Markdown preview
+
+Renders any `.md` file locally in the browser exactly as GitHub would display it
+— same CSS, same syntax highlighting, same table and checkbox rendering. No
+Docsify setup needed, no repo push required. Instant sanity-check before
+committing docs.
+
+```bash
+uv tool install grip
+
+grip README.md          # opens http://localhost:6419
+grip README.md 8080     # custom port
+grip .                  # serves the whole directory
+```
+
+Works offline after first run (caches GitHub CSS locally). Authenticates via
+`~/.config/grip/settings.py` if you hit the GitHub API rate limit (60 req/h
+unauthenticated).
 
 ---
 
