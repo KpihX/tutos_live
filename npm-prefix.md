@@ -373,7 +373,43 @@ prefix=/home/kpihx/.npm-global
 ```
 
 Also keep `NPM_CONFIG_PREFIX` in `~/.kshrc` as a belt-and-suspenders redundancy
-for interactive shells — it reinforces the same value at the env level:
+for interactive shells — it reinforces the same value at the env level.
+
+**Silencing the nvm warning without suppressing real errors**
+
+Since the warning is printed to stderr during nvm init, a simple `2>/dev/null`
+would silence it — but also swallow legitimate nvm errors. The surgical fix:
+redirect stderr to a temp file during nvm sourcing, then replay it through `grep -v`:
+
+```bash
+# In ~/.kshrc — replace the plain `. nvm.sh` line with:
+if [ -s "$NVM_DIR/nvm.sh" ]; then
+    _nvm_stderr=$(mktemp)
+    \. "$NVM_DIR/nvm.sh" 2>"$_nvm_stderr"
+    grep -v -E "incompatible with nvm|delete-prefix|globalconfig|\.npmrc file" \
+        "$_nvm_stderr" >&2
+    rm -f "$_nvm_stderr"
+fi
+```
+
+```
+How it works:
+  \. nvm.sh → runs in CURRENT shell (vars persist) ✅
+              stderr → temp file (not lost)
+              ↓
+  grep -v → filters the 3 warning lines
+              ↓
+  remaining stderr → back to >&2 (real errors still visible)
+              ↓
+  rm temp file
+```
+
+The `grep -v -E` pattern covers all 3 lines of the nvm npmrc warning:
+- `Your user's .npmrc file (${HOME}/.npmrc)` → matched by `\.npmrc file`
+- `has a \`globalconfig\` and/or a \`prefix\` setting…` → matched by `globalconfig`
+- `Run \`nvm use --delete-prefix\`…` → matched by `delete-prefix`
+
+Real nvm errors (`version not found`, `no such file`, etc.) pass through unaffected.
 
 ---
 
