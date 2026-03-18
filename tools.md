@@ -205,7 +205,7 @@ Add to `~/.kshrc` (universal hub — before the interactive guard):
 ```bash
 export PYENV_ROOT="$HOME/.pyenv"
 [[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
-eval "$(pyenv init - zsh)"
+eval "$(pyenv init - $(basename "$SHELL"))"
 ```
 
 Common use:
@@ -222,8 +222,50 @@ pyenv version               # show current active version
 The `.python-version` file at the project root is the pyenv equivalent of
 nvm's `.nvmrc` — pyenv switches automatically when you `cd` into the directory.
 
+```bash
+# In a project that needs Python 3.12:
+echo "3.12" > .python-version
+
+# Auto-switch fires on cd — no manual command needed:
+cd myproject/
+# → pyenv activates 3.12 silently
+python --version
+# → Python 3.12.x
+```
+
+Unlike nvm (which needs an explicit `nvm use` hook wired in `~/.zshrc`),
+pyenv's auto-switch is built into `eval "$(pyenv init ...)"` — it installs
+a `chpwd` hook in zsh and a `cd` wrapper in bash automatically.
+
 Works seamlessly with `uv`: `uv` respects the active pyenv Python when you
 run `uv venv` or `uv run` inside a project that has `.python-version`.
+
+**⚠️ Gotcha — shell-specific `pyenv init` in a shell-agnostic `.kshrc`**
+
+`eval "$(pyenv init - zsh)"` generates **zsh-specific** shell code. When
+`.kshrc` is sourced from bash (e.g. via `~/.bashrc`), this produces syntax
+errors. Fix: detect the active shell dynamically:
+
+```bash
+# In ~/.kshrc — shell-agnostic, works for both zsh and bash:
+export PYENV_ROOT="$HOME/.pyenv"
+[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init - $(basename "$SHELL"))"
+```
+
+```
+Without the fix:                   With the fix:
+  .kshrc sourced from bash           .kshrc sourced from bash
+       ↓                                  ↓
+  eval "$(pyenv init - zsh)"        eval "$(pyenv init - bash)"
+       ↓                                  ↓
+  zsh-specific function syntax       bash-compatible cd wrapper
+  → syntax error in bash ❌          → auto-switch works ✅
+```
+
+Note: auto-switch only fires in interactive shells where `pyenv init` ran.
+Scripts and non-interactive subprocesses use whichever version `pyenv global`
+set — same constraint as nvm in non-sourced contexts.
 
 ---
 
