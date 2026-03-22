@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.8.0] — 2026-03-22
+
+### Added
+- [x] `tg.md` — Telegram CLI: Bot API + Telethon user API, setup, commands, security
+- [x] `m365-cli.md` — Microsoft 365 CLI: Azure App Registration, device code auth, mail/calendar/OneDrive
+- [x] `cloudflare.md` — flarectl: DNS management, zone ops, CF_API_TOKEN via bw-env
+- [x] `mcps/bw-mcp.md` — bw-mcp tutorial: architecture, 7-layer defense, ACID transactions, WAL
+- [x] `mcps/tick-mcp.md` — tick-mcp tutorial: 71 tools, dual transport, API gotchas, workspace map
+- [x] `mcps/whats-mcp.md` — whats-mcp tutorial: 64 tools, Baileys, operator surfaces, pairing
+
+### Changed
+- [x] `_sidebar.md`: added 3 tool tutorials + new "🔌 MCPs" section with 3 entries
+- [x] `README.md`: 3 new tutorial rows + new MCPs table section
+- [x] `tools.md`: entries for tg, m365-cli, flarectl, bw-mcp, tick-mcp, whats-mcp
+
 ## [0.7.0] — 2026-03-17
 
 ### Added

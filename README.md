@@ -24,6 +24,17 @@ No theory, no made-up examples. Everything here was lived on my machine and docu
 | [🔑 bw-env — Secret Injection](bw-env.md) | Bitwarden-backed secrets in RAM: unlock, inject, auto-lock on sleep |
 | [🌊 WaveTerm](waveterm.md) | Block-based terminal — sidebar widgets, SSH, BYOK AI modes (Groq, Mistral), wsh secrets |
 | [🧹 Cleanup Suite](clean.md) | Modular disk cleanup — Snap, cache, Docker, AI models, Work artifacts — 4 risk levels |
+| [🤖 tg — Telegram CLI](tg.md) | Bot API + Telethon user API — send, read, manage bots and personal chats from the terminal |
+| [📧 m365 CLI — Microsoft 365](m365-cli.md) | Mail, calendar, OneDrive via Graph API — device code auth, personal accounts |
+| [☁️ Cloudflare CLI (flarectl)](cloudflare.md) | Zone and DNS management from the terminal — CF_API_TOKEN via bw-env |
+
+## 🔌 MCPs
+
+| Tutorial | Topic |
+|----------|-------|
+| [🔐 bw-mcp](mcps/bw-mcp.md) | Bitwarden AI-blind vault proxy — 7-layer security, ACID transactions, WAL |
+| [✅ tick-mcp](mcps/tick-mcp.md) | TickTick MCP — 71 tools, stdio + HTTP transport, V1+V2 API |
+| [💬 whats-mcp](mcps/whats-mcp.md) | WhatsApp MCP — 64 tools, Baileys, dual transport, Telegram admin bridge |
 
 ## 🐚 Shell Commands
 

@@ -451,6 +451,97 @@ sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/too
 
 ---
 
+---
+
+## 🤖 Messaging & APIs
+
+### tg — Telegram CLI
+
+Like `gh` for GitHub but for Telegram. Manages bots (Bot API, auto-discovers tokens from `TELEGRAM_*_TOKEN`) and personal conversations (Telethon MTProto, one-time OTP setup). Two independent layers, zero magic.
+
+```bash
+git clone git@github.com:KpihX/tg.git ~/Work/tools/tg
+cd ~/Work/tools/tg
+uv tool install --editable .
+```
+
+→ **Full guide:** [tg.md](tg.md) — Bot API, Telethon user API, config, security.
+**Repos:** [GitHub](https://github.com/KpihX/tg) · [GitLab](https://gitlab.com/kpihx/tg)
+
+---
+
+### m365 CLI — Microsoft 365
+
+Official CLI for Graph API access to Outlook mail, calendar, and OneDrive. Device code auth — authenticate once in a browser, tokens auto-refresh. Works with personal Microsoft/Hotmail accounts.
+
+```bash
+npm install -g @pnp/cli-microsoft365
+m365 login --authType deviceCode
+```
+
+→ **Full guide:** [m365-cli.md](m365-cli.md) — Azure App Registration, device code flow, mail/calendar/OneDrive commands.
+
+---
+
+### flarectl — Cloudflare CLI
+
+Official Go CLI for Cloudflare zone and DNS management. Reads `CF_API_TOKEN` from env (injected by bw-env). Full DNS CRUD from the terminal — essential for Traefik DNS-01 challenges and homelab record management.
+
+```bash
+go install github.com/cloudflare/cloudflare-go/cmd/flarectl@latest
+ln -sf ~/go/bin/flarectl ~/.local/bin/flarectl
+```
+
+→ **Full guide:** [cloudflare.md](cloudflare.md) — zone list, DNS CRUD, token scoping.
+
+---
+
+## 🔌 MCP Servers
+
+### bw-mcp — Bitwarden AI-Blind Proxy
+
+Security-hardened MCP proxy between LLMs and the Bitwarden CLI. The model can organize your entire vault (rename, move, tag) while being physically incapable of reading any secret value. 7-layer defense: Pydantic validation, force-redact, Zenity HITL, ACID engine, WAL, LIFO rollback, full audit trail.
+
+```bash
+cd ~/Work/AI/MCPs/bw_mcp
+uv tool install --editable .   # installs bw-mcp + bw-admin
+```
+
+→ **Full guide:** [mcps/bw-mcp.md](mcps/bw-mcp.md) — architecture, Claude Code config, transactions, WAL recovery.
+**Repos:** [GitHub](https://github.com/KpihX/bw-mcp) · [GitLab](https://gitlab.com/kpihx/bw-mcp)
+
+---
+
+### tick-mcp — TickTick MCP Server
+
+71 MCP tools for full TickTick control from any agent. Covers V1 (official API) and V2 (unofficial). Dual transport: local stdio fallback + homelab HTTP at `tick.kpihx-labs.com/mcp`.
+
+```bash
+cd ~/Work/AI/MCPs/tick_mcp
+uv tool install --editable .   # local fallback
+# homelab: already deployed at tick.kpihx-labs.com
+```
+
+→ **Full guide:** [mcps/tick-mcp.md](mcps/tick-mcp.md) — tool categories, Claude Code config, API gotchas.
+**Repos:** [GitHub](https://github.com/KpihX/tick-mcp) · [GitLab](https://gitlab.com/kpihx-labs/tick-mcp)
+
+---
+
+### whats-mcp — WhatsApp MCP Server
+
+64 MCP tools for WhatsApp messaging, contacts, groups, channels, and analytics. Powered by Baileys. Intent-first entry points: `whatsup`, `daily_digest`, `find_messages`. Dual transport: stdio + homelab HTTP at `whats.kpihx-labs.com/mcp`.
+
+```bash
+cd ~/Work/AI/MCPs/whats_mcp
+npm link                       # local fallback (npm global)
+# homelab: already deployed at whats.kpihx-labs.com
+```
+
+→ **Full guide:** [mcps/whats-mcp.md](mcps/whats-mcp.md) — tool categories, pairing, operator surfaces.
+**Repos:** [GitHub](https://github.com/KpihX/whats-mcp) · [GitLab](https://gitlab.com/kpihx-labs/whats-mcp)
+
+---
+
 *Add new tools following the format above. For installs that need significant
 explanation, create a dedicated `.md` with the narrative approach and link
 from this file. See `.agent/AGENT.md` for the `tools.md` maintenance guide.*
