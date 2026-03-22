@@ -166,6 +166,25 @@ top (leftover from `.bashrc` boilerplate), it will silently exit before setting
 any exports in non-interactive shells — breaking MCPs, scripts, and `zsh -l -c`.
 Move that guard to **after** all `export` statements.
 
+### Bun — JS/TS Runtime & Package Manager
+
+The sovereign JS/TS toolchain for KpihX-owned projects. One binary replaces
+`npm`, `npx`, `node`, `jest`, `esbuild`, and `tsc` for day-to-day use. Runs
+TypeScript natively, installs packages 10x faster than npm, and publishes to
+npmjs.com with `bun publish`.
+
+```bash
+curl -fsSL https://bun.sh/install | bash
+
+# Add to ~/.kshrc (before nvm block — bun takes priority for own projects):
+export PATH="$HOME/.bun/bin:$HOME/.npm-global/bin:$PATH"
+```
+
+Node.js + nvm are KEPT — Gemini CLI, Codex, Copilot, and Claude Code depend on
+Node. Bun and Node coexist without conflict.
+
+→ **Full guide:** [bun.md](bun.md) — project scaffold, TypeScript strict mode, Biome linter, `bun test`, Docker base image, coexistence with nvm.
+
 ---
 
 ## 🐍 Python
