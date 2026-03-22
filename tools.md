@@ -573,6 +573,27 @@ sudo apt install xdotool python3-gi python3-dbus   # system deps
 
 ---
 
+### mail-mcp — Generic IMAP+SMTP MCP Server
+
+Connects any AI agent to any email account via IMAP+SMTP — no OAuth2, no vendor lock-in. Intent-first tools (`mail_guide`, `check_inbox`, `daily_digest`, `search_messages`, `send_message`, `reply_message`…). Triple admin surface: `mail-admin` CLI + HTTP routes + Telegram bot. Dual transport: stdio fallback + homelab HTTP at `mail.kpihx-labs.com/mcp`. Credentials managed via bw-env, live-updateable without restart via `/data/mail-admin.env` (Docker volume).
+
+```bash
+cd ~/Work/AI/MCPs/mail_mcp
+uv tool install --editable .   # installs mail-mcp + mail-admin binaries
+# homelab: already deployed at mail.kpihx-labs.com:8094
+```
+
+Admin:
+```bash
+mail-admin status              # credential status table (source: env/admin-env/bw-env)
+mail-admin logs 20             # last 20 log lines
+mail-admin credentials set poly <login> <pass>   # live update without restart
+```
+
+**Repos:** [GitHub](https://github.com/KpihX/mail-mcp) · [GitLab](https://gitlab.com/kpihx-labs/mail-mcp)
+
+---
+
 *Add new tools following the format above. For installs that need significant
 explanation, create a dedicated `.md` with the narrative approach and link
 from this file. See `.agent/AGENT.md` for the `tools.md` maintenance guide.*
