@@ -540,6 +540,18 @@ npm link                       # local fallback (npm global)
 → **Full guide:** [mcps/whats-mcp.md](mcps/whats-mcp.md) — tool categories, pairing, operator surfaces.
 **Repos:** [GitHub](https://github.com/KpihX/whats-mcp) · [GitLab](https://gitlab.com/kpihx-labs/whats-mcp)
 
+### desk-mcp — Desktop Automation MCP
+
+Gives any AI agent eyes and hands on the KpihX-Ubuntu desktop. Screenshot via XDG Desktop Portal (no dialog, native GNOME Wayland), mouse/keyboard via xdotool. Crop to window name or `{x,y,w,h}` region. 9 tools: `screenshot`, `get_windows`, `get_screen`, `click`, `double_click`, `right_click`, `move_mouse`, `type_text`, `key`, `scroll`.
+
+```bash
+cd ~/Work/AI/MCPs/desk_mcp
+uv tool install --editable .   # installs desk-mcp binary
+sudo apt install xdotool python3-gi python3-dbus   # system deps
+```
+
+**Repos:** [GitHub](https://github.com/KpihX/desk-mcp) · [GitLab](https://gitlab.com/kpihx/desk-mcp)
+
 ---
 
 *Add new tools following the format above. For installs that need significant
