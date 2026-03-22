@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.9.0] — 2026-03-22
+
+### Added
+- [x] `bun.md` — Bun JS/TS runtime: install, TypeScript strict mode, Biome, bun test, bun build, Docker, nvm coexistence
+- [x] `desk-mcp` entry in `tools.md` — Desktop automation MCP (screenshot, mouse/keyboard)
+
+### Changed
+- [x] `README.md`: added `bun.md` and `zsh_env.md` rows to Tutorials table
+- [x] `_sidebar.md`: added Bun entry after npm-prefix
+- [x] `tools.md`: Bun entry under Node.js section with quick-start and guide link
+
+---
+
 ## [0.8.0] — 2026-03-22
 
 ### Added
