@@ -22,6 +22,7 @@ No theory, no made-up examples. Everything here was lived on my machine and docu
 | [🦊 GitLab CLI (glab)](glab.md) | Repos, MRs, issues, pipelines, CI/CD, secrets — GitLab native CLI |
 | [📦 Node.js & npm prefix](npm-prefix.md) | nvm, `.nvmrc`, and the `~/.npm-global` fix for tools that auto-update without nvm sourced |
 | [🥟 Bun — JS/TS Runtime](bun.md) | Sovereign JS/TS toolchain — runtime, package manager, test runner, bundler in one binary |
+| [🧠 qmd — Local Semantic Search](qmd.md) | AI-powered semantic search for your Markdown notes and code |
 | [🐚 Zsh + env](zsh_env.md) | `.zshenv`/`.zprofile`/`.zshrc` triptych, GUI app secret gap, `zsh -l -c` injection pattern |
 | [🔑 bw-env — Secret Injection](bw-env.md) | Bitwarden-backed secrets in RAM: unlock, inject, auto-lock on sleep |
 | [🌊 WaveTerm](waveterm.md) | Block-based terminal — sidebar widgets, SSH, BYOK AI modes (Groq, Mistral), wsh secrets |

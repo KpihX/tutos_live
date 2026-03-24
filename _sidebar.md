@@ -12,6 +12,7 @@
   - [🦊 GitLab CLI (glab)](glab.md)
   - [📦 Node.js & npm prefix](npm-prefix.md)
   - [🥟 Bun — JS/TS Runtime](bun.md)
+  - [🧠 qmd — Local Semantic Search](qmd.md)
   - [🔑 bw-env — Secret Injection](bw-env.md)
   - [🌊 WaveTerm](waveterm.md)
   - [🐚 Zsh + env](zsh_env.md)

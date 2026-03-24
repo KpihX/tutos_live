@@ -10,6 +10,7 @@
 - [ ] `bw-env.md` — Bitwarden-backed env manager: secrets injected to RAM via `/dev/shm`
 
 ## Done
+- [x] `qmd.md` — QMD: Local AI-powered semantic search engine tutorial
 - [x] Project init: `git init`, Docsify setup, agent symlinks (`CLAUDE.md`, `GEMINI.md`, `AGENTS.md`)
 - [x] `tailscale.md` — MagicDNS permanent DNS fix, SSH config with Bitwarden SSH agent
 - [x] `github-pages.md` — Docsify local setup + GitHub Pages deployment guide

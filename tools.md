@@ -213,6 +213,20 @@ uv init --package myproject        # scaffold a new project
 
 ---
 
+### qmd — Quick Markdown Search
+
+A local, AI-powered semantic search engine for your Markdown notes and code.
+Indexes your entire knowledge base and allows natural language queries,
+vector search, and hybrid search. Integrates with Git for auto-updates.
+
+```bash
+bun install -g @tobilu/qmd
+```
+
+→ **Full guide:** [qmd.md](qmd.md) — installation, configuration, search modes, Git hooks automation.
+
+---
+
 ### pyenv — Python Version Manager
 
 The Python equivalent of nvm. Manages multiple Python versions on the same
@@ -591,6 +605,33 @@ mail-admin credentials set poly <login> <pass>   # live update without restart
 ```
 
 **Repos:** [GitHub](https://github.com/KpihX/mail-mcp) · [GitLab](https://gitlab.com/kpihx-labs/mail-mcp)
+
+### linkedin-mcp — LinkedIn MCP Server
+
+Wraps LinkedIn's official OAuth 2.0 surface (`openid profile email w_member_social`) for agent-driven social actions: post text or images, like, comment, delete, read profile and auth status. No unofficial scraping — pure official API. Three-level admin: `linkedin-admin` CLI + HTTP routes + Telegram bot. Dual transport: stdio fallback + homelab HTTP at `linkedin.kpihx-labs.com/mcp` (port 8095). Token stored in `/data/state/token.json`; expires every 60 days (no refresh token for non-Partner apps).
+
+```bash
+cd ~/Work/AI/MCPs/linkedin_mcp
+bun install && bun link   # installs linkedin-mcp + linkedin-admin binaries
+# homelab: already deployed at linkedin.kpihx-labs.com:8095
+```
+
+Admin:
+```bash
+linkedin-admin auth [--port 3001]     # OAuth browser flow (default port 3001)
+linkedin-admin token set <token>      # direct token set + best-effort profile fetch
+linkedin-admin status                 # credential table (CLIENT_ID, CLIENT_SECRET, Token)
+linkedin-admin token unset            # clear token (= logout)
+```
+
+Token lifecycle (60 days):
+```
+Day 0  → linkedin-admin auth   OR   linkedin-admin token set <token>
+Day 55+ → linkedin-admin status   (shows days_left)
+Day 60 → token invalid — re-run auth
+```
+
+**Repos:** [GitHub](https://github.com/KpihX/linkedin-mcp) · [GitLab](https://gitlab.com/kpihx-labs/linkedin-mcp)
 
 ---
 

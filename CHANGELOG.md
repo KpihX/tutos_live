@@ -5,6 +5,7 @@
 ### Added
 - [x] `bun.md` — Bun JS/TS runtime: install, TypeScript strict mode, Biome, bun test, bun build, Docker, nvm coexistence
 - [x] `desk-mcp` entry in `tools.md` — Desktop automation MCP (screenshot, mouse/keyboard)
+- [x] `qmd.md` — QMD: Local AI-powered semantic search engine for notes and code
 
 ### Changed
 - [x] `README.md`: added `bun.md` and `zsh_env.md` rows to Tutorials table
