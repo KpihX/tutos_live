@@ -112,6 +112,13 @@ qmdr query "intel arc vulkan" -c tutos_live
 
 This preserves the lean post-commit hook model while still giving me a deterministic "fresh before search" entrypoint.
 
+Rule of thumb:
+
+- use `qmd` for `status`, `get`, `embed`, `update`, `cleanup`, and collection management
+- use `qmdr` for important `query`, `search`, and `vsearch` flows
+
+I also removed the old agent-side QMD MCP wiring: QMD is now intentionally CLI-first across my runtimes.
+
 **File:** `.git/hooks/post-commit` (symlink or copy from the shared template)
 ```bash
 #!/bin/sh
