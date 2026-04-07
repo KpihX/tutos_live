@@ -58,7 +58,7 @@ and `.nojekyll`. Let me walk through each.
 This is the only non-Markdown file. It loads the Docsify runtime from CDN
 and configures the site — theme, search, sidebar, dark/light toggle.
 
-> **Template available:** [`templates/github-pages-index.html`](https://github.com/kpihx/tutos_live/blob/master/templates/github-pages-index.html)
+> **Template available:** [`templates/github-pages-index.html`](https://github.com/kpihx/techskills/blob/master/templates/github-pages-index.html)
 > Copy it to your repo root, rename to `index.html`, replace the 4 placeholders
 > (`SITE_TITLE`, `SITE_NAME`, `GITHUB_REPO_URL`, `SEARCH_PLACEHOLDER`).
 > The full annotated version is below for reference.
@@ -219,7 +219,7 @@ and the sidebar appears.
 Before pushing, I always verify the site locally. No server needed — just `npx`:
 
 ```bash
-cd ~/Work/tutos_live
+cd ~/Work/techskills
 
 npx docsify-cli serve .
 # → Serving at http://localhost:3000
@@ -263,7 +263,7 @@ importantly — **don't** check "Initialize this repository". You already have
 files. GitHub will show you a remote URL; grab the SSH one.
 
 ```bash
-git remote add github git@github.com:yourname/tutos_live.git
+git remote add github git@github.com:yourname/techskills.git
 git push -u github master
 ```
 
@@ -275,12 +275,12 @@ git add .
 git commit -m "feat: initial Docsify setup"
 
 # Create the repo on GitHub
-gh repo create yourname/tutos_live \
+gh repo create yourname/techskills \
   --public \
   --description "My Ubuntu live tutorials"
 
 # Add the remote (gh create doesn't add it automatically)
-git remote add github git@github.com:yourname/tutos_live.git
+git remote add github git@github.com:yourname/techskills.git
 
 # Push
 git push github HEAD
@@ -303,7 +303,7 @@ Branch = `master`, Folder = `/ (root)`. Save.
 ### Method B — gh api (instant, no browser)
 
 ```bash
-gh api repos/yourname/tutos_live/pages \
+gh api repos/yourname/techskills/pages \
   --method POST \
   -f "source[branch]=master" \
   -f "source[path]=/"
@@ -322,7 +322,7 @@ GitHub Pages (Jekyll disabled by .nojekyll)
   └── *.md         → fetched on demand by Docsify
   │
   ▼
-https://yourname.github.io/tutos_live/
+https://yourname.github.io/techskills/
   → sidebar ✅ · dark toggle ✅ · search ✅
 ```
 
@@ -373,11 +373,11 @@ npx docsify-cli serve .
 # → sidebar visible, dark toggle works, search works
 
 # Remote — site is up
-curl -s -o /dev/null -w "%{http_code}" https://yourname.github.io/tutos_live/
+curl -s -o /dev/null -w "%{http_code}" https://yourname.github.io/techskills/
 # → 200
 
 # Remote — _sidebar.md is served (Jekyll is disabled)
-curl -s -o /dev/null -w "%{http_code}" https://yourname.github.io/tutos_live/_sidebar.md
+curl -s -o /dev/null -w "%{http_code}" https://yourname.github.io/techskills/_sidebar.md
 # → 200  (would be 404 without .nojekyll)
 ```
 

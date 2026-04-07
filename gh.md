@@ -80,12 +80,12 @@ I now do:
 
 ```bash
 # From inside the project directory
-gh repo create kpihx/tutos_live \
+gh repo create kpihx/techskills \
   --public \
   --description "Ubuntu-focused live tutorials"
 
 # Then add the remote and push as usual
-git remote add github git@github.com:kpihx/tutos_live.git
+git remote add github git@github.com:kpihx/techskills.git
 git push github HEAD
 ```
 
@@ -109,8 +109,8 @@ Once a repo exists, `gh repo view` gives a quick summary, and `--web` opens
 it in the browser if you need the full UI:
 
 ```bash
-gh repo view kpihx/tutos_live
-gh repo view kpihx/tutos_live --web
+gh repo view kpihx/techskills
+gh repo view kpihx/techskills --web
 
 # List your repos
 gh repo list kpihx --limit 20
@@ -227,7 +227,7 @@ I use it most often for two things.
 **Enabling GitHub Pages on a new repo:**
 
 ```bash
-gh api repos/kpihx/tutos_live/pages \
+gh api repos/kpihx/techskills/pages \
   --method POST \
   -f "source[branch]=master" \
   -f "source[path]=/"
@@ -236,7 +236,7 @@ gh api repos/kpihx/tutos_live/pages \
 **Setting repo topics:**
 
 ```bash
-gh api repos/kpihx/tutos_live/topics \
+gh api repos/kpihx/techskills/topics \
   --method PUT \
   -f "names[]=ubuntu" -f "names[]=docsify" -f "names[]=tutorials"
 ```

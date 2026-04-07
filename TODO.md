@@ -16,7 +16,7 @@
 - [x] `tailscale.md` — MagicDNS permanent DNS fix, SSH config with Bitwarden SSH agent
 - [x] `github-pages.md` — Docsify local setup + GitHub Pages deployment guide
 - [x] `README.md`, `TODO.md`, `CHANGELOG.md`, `_sidebar.md`, `index.html`
-- [x] GitHub public repo created: https://github.com/KpihX/tutos_live
-- [x] GitLab public repo created: https://gitlab.com/kpihx/tutos_live
+- [x] GitHub public repo created: https://github.com/KpihX/techskills
+- [x] GitLab public repo created: https://gitlab.com/kpihx/techskills
 - [x] Pushed to both remotes
-- [x] GitHub Pages enabled: https://kpihx.github.io/tutos_live/
+- [x] GitHub Pages enabled: https://kpihx.github.io/techskills/

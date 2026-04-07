@@ -2,7 +2,7 @@
 
 > **Machine:** KpihX-Ubuntu | **Date:** 2026-03-24
 
-I have a large amount of Markdown notes in `$HOME/Work/tutos_live` and `$HOME/Work/Homelab/presentation`. Using `grep` works, but it's limited to exact keyword matching. I wanted something smarter, capable of understanding the intent behind my searches. That's when I discovered `qmd`.
+I have a large amount of Markdown notes in `$HOME/Work/techskills` and `$HOME/Work/Homelab/presentation`. Using `grep` works, but it's limited to exact keyword matching. I wanted something smarter, capable of understanding the intent behind my searches. That's when I discovered `qmd`.
 
 `qmd` is a local search engine that uses AI models to "understand" the meaning of your notes and provide much more relevant results. Here's how I installed and configured it to become an essential building block of my "external memory."
 
@@ -27,14 +27,14 @@ qmd collection list
 
 Historically, I started from two primary knowledge sources:
 
-1.  `$HOME/Work/tutos_live`
+1.  `$HOME/Work/techskills`
 2.  `$HOME/Work/Homelab/presentation`
 
 So I created two `qmd` "collections":
 
 ```bash
 # Historical bootstrap
-qmd collection add $HOME/Work/tutos_live/ -n tutos_live --mask "**/*.{md,yml,yaml,toml}"
+qmd collection add $HOME/Work/techskills/ -n techskills --mask "**/*.{md,yml,yaml,toml}"
 qmd collection add $HOME/Work/Homelab/presentation/ -n presentation --mask "**/*.{md,yml,yaml,toml}"
 ```
 
@@ -78,7 +78,7 @@ When I need more precision, I combine keyword search (`lex:`), conceptual search
 
 ```bash
 # Problem: Find the guide that explains how to configure a systemd service for a Python script.
-qmd query $'hyde: A tutorial that explains how to create a systemd service file to run a Python script as a background daemon on Ubuntu.' -c tutos_live
+qmd query $'hyde: A tutorial that explains how to create a systemd service file to run a Python script as a background daemon on Ubuntu.' -c techskills
 ```
 
 ## Automation with Git Hooks
@@ -100,7 +100,7 @@ The current behavior is intentionally conservative:
 For important searches, I now prefer:
 
 ```bash
-qmdr query "intel arc vulkan" -c tutos_live
+qmdr query "intel arc vulkan" -c techskills
 ```
 
 `qmdr` is an explicit wrapper that:

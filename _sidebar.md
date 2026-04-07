@@ -38,5 +38,5 @@
   - [🌐 globbing vs regex](sh/globbing_vs_regex.md)
 
 - **Links**
-  - [GitHub](https://github.com/kpihx/tutos_live)
-  - [GitLab](https://gitlab.com/kpihx/tutos_live)
+  - [GitHub](https://github.com/kpihx/techskills)
+  - [GitLab](https://gitlab.com/kpihx/techskills)

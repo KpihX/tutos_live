@@ -88,10 +88,10 @@ current directory and picks the right instance automatically.
 
 ```bash
 # Create a public repo from the current directory
-glab repo create kpihx/tutos_live --public --description "Ubuntu live tutorials"
+glab repo create kpihx/techskills --public --description "Ubuntu live tutorials"
 
 # Clone
-glab repo clone kpihx/tutos_live
+glab repo clone kpihx/techskills
 
 # Fork + clone someone else's project
 glab repo fork gitlab-org/gitlab-runner --clone
@@ -102,7 +102,7 @@ glab repo list --member   # repos you're a member of
 glab repo list --starred
 
 # Open in browser when you need the full UI
-glab repo view kpihx/tutos_live --web
+glab repo view kpihx/techskills --web
 ```
 
 ---
@@ -278,19 +278,19 @@ Like `gh api` for GitHub, `glab api` gives access to the full GitLab REST API.
 
 ```bash
 # Get project info
-glab api projects/kpihx%2Ftutos_live
+glab api projects/kpihx%2Ftechskills
 
 # Update project description
-glab api projects/kpihx%2Ftutos_live \
+glab api projects/kpihx%2Ftechskills \
   --method PUT \
   -f description="Ubuntu live tutorials"
 
 # List project members
-glab api projects/kpihx%2Ftutos_live/members
+glab api projects/kpihx%2Ftechskills/members
 ```
 
 > **URL encoding:** GitLab API uses `owner%2Frepo` (slash encoded as `%2F`)
-> in project path parameters. `kpihx/tutos_live` becomes `kpihx%2Ftutos_live`.
+> in project path parameters. `kpihx/techskills` becomes `kpihx%2Ftechskills`.
 
 ---
 

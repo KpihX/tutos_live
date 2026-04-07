@@ -1,4 +1,4 @@
-# tutos_live — Ubuntu Field Notes & Tutorials
+# techskills — Ubuntu Field Notes & Tutorials
 
 ## RULES
 - **Language:** This file and all technical documentation (AGENT.md, README.md, TODO.md, CHANGELOG.md) MUST always be written and edited in **ENGLISH**, regardless of the language used in the conversation.
@@ -94,13 +94,13 @@
 
 ---
 
-## 📂 PROJECT: tutos_live
+## 📂 PROJECT: techskills
 
 **Vision:** Personal Ubuntu knowledge base — real problems, real fixes, documented as they happen on KpihX-Ubuntu. Not a software project: a living field-notes collection published via GitHub Pages (Docsify).
 
-**Live site:** https://kpihx.github.io/tutos_live/
-**GitHub:** `git@github.com:kpihx/tutos_live.git` (public)
-**GitLab:** `git@gitlab.com:kpihx/tutos_live.git` (public)
+**Live site:** https://kpihx.github.io/techskills/
+**GitHub:** `git@github.com:kpihx/techskills.git` (public)
+**GitLab:** `git@gitlab.com:kpihx/techskills.git` (public)
 
 ### Tutorial Style Guide (local mandate — enforced in this project)
 
@@ -153,12 +153,12 @@ Every agent adding or editing a `.md` tutorial MUST follow:
 2. Under the relevant tool in `tools.md`, add a `**Templates:**` line with a link:
    ```markdown
    **Templates:**
-   - [`filename.ext`](https://github.com/kpihx/tutos_live/blob/master/templates/filename.ext) — one-line description. Copy to X, rename to Y, fill Z.
+   - [`filename.ext`](https://github.com/kpihx/techskills/blob/master/templates/filename.ext) — one-line description. Copy to X, rename to Y, fill Z.
    ```
    ⚠️ **Always use absolute GitHub blob URLs** — relative paths like `(templates/filename.ext)` cause 404 on the Docsify site because Docsify intercepts relative links and tries to load them as Markdown routes. [CLAUDE]
 3. In the relevant tutorial `.md`, add a callout at the start of the section where the file is introduced:
    ```markdown
-   > **Template available:** [`templates/filename.ext`](https://github.com/kpihx/tutos_live/blob/master/templates/filename.ext) — copy, rename, fill placeholders.
+   > **Template available:** [`templates/filename.ext`](https://github.com/kpihx/techskills/blob/master/templates/filename.ext) — copy, rename, fill placeholders.
    ```
 4. `git add templates/ tools.md <tutorial>.md && git commit -m "docs(templates): add <name> template"`
 5. Push both remotes.
@@ -219,7 +219,7 @@ sudo tailscale up
 ### Structure
 
 ```
-tutos_live/
+techskills/
 ├── index.html          ← Docsify entry (GitHub Pages)
 ├── _sidebar.md         ← Docsify navigation
 ├── .nojekyll           ← Disables Jekyll (required for _sidebar.md)
@@ -415,7 +415,7 @@ This directory is the "Black Box" and single source of truth for the Homelab. It
 - **`EVOLUTION.md`**: The "When" - The chronological changelog of the infrastructure.
 - **`IDEAS.md`**: The "What's Next" - The proactive roadmap and future features.
 - **`PORTABILITY.md`**: The "Survival Guide" - For migrating the lab to a new network.
-- **`tutos_live/`**: The "Manuals" - Step-by-step guides for reproducing, debugging, or evolving any service.
+- **`techskills/`**: The "Manuals" - Step-by-step guides for reproducing, debugging, or evolving any service.
 
 ### 10. Local Artifacts & Volatile Memory
 - **`~/.todo_cli.json`:** A volatile, local "scratchpad" for capturing raw ideas across all contexts (Ubuntu, Homelab, dev). This is NOT a long-term store of truth and should be periodically migrated to structured systems like TickTick.
