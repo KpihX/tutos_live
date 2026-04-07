@@ -1,4 +1,4 @@
-# 🧰 KpihX Ubuntu — Tools & Apps
+# 🧰 TechSkills — Tools & Apps
 
 > A living inventory of the tools installed on KpihX-Ubuntu (25.10).
 > Each entry: what problem it solves + how to install.
